@@ -8,16 +8,16 @@ declare (strict_types = 1);
  */
 
 define('ROOT', str_replace(DIRECTORY_SEPARATOR, '/', getcwd()));
-define('DEBUG', false);
+define('DEBUG', true);
 setlocale(LC_ALL, 'es_ES.UTF-8');
 
 // Si DEBUG es true enseñamos los errores
 if (DEBUG == true) {
-    @ini_set('error_reporting', E_ALL);
-    @ini_set('display_errors', 1);
+    @ini_set('error_reporting', (string)E_ALL);
+    @ini_set('display_errors', (string) 1);
 } else {
-    @ini_set('error_reporting', E_ALL);
-    @ini_set('display_errors', 0);
+    @ini_set('error_reporting', (string)E_ALL);
+    @ini_set('display_errors', (string) 0);
 }
 
 /**
@@ -223,9 +223,9 @@ trait Session
  * Este trait proporciona una funcionalidad para generar y verificar tokens aleatorios, y generar códigos de captcha.
  *
  * Los tokens se utilizan para la autenticación y la protección contra ataques CSRF, mientras que los códigos de captcha se utilizan para la verificación de formularios.
-* @package MediaManager
-* @category MediaManager
-*/
+ * @package MediaManager
+ * @category MediaManager
+ */
 trait Token
 {
 
@@ -297,26 +297,26 @@ trait Token
 
 /**
  * Auth Trait
- * 
- * El trait Auth contiene varias funciones que se encargan de la autenticación de usuarios en una aplicación web. Los comentarios 
+ *
+ * El trait Auth contiene varias funciones que se encargan de la autenticación de usuarios en una aplicación web. Los comentarios
  * relacionados con el trait son los siguientes:
- * 
- * toManyAttempts: Esta función devuelve una página HTML indicando que se han realizado demasiados intentos de acceso y 
- * se ha bloqueado temporalmente el acceso. Esta página se mostrará al usuario en caso de que haya superado el número máximo 
+ *
+ * toManyAttempts: Esta función devuelve una página HTML indicando que se han realizado demasiados intentos de acceso y
+ * se ha bloqueado temporalmente el acceso. Esta página se mostrará al usuario en caso de que haya superado el número máximo
  * de intentos fallidos de inicio de sesión.
- * isLogin: Esta función verifica si el usuario ha iniciado sesión o no. Devuelve true si se han cumplido las condiciones 
+ * isLogin: Esta función verifica si el usuario ha iniciado sesión o no. Devuelve true si se han cumplido las condiciones
  * necesarias para considerar que el usuario ha iniciado sesión, y false en caso contrario.
- * login: Esta función se encarga de realizar el proceso de inicio de sesión del usuario. En primer lugar, comprueba que 
- * la contraseña no esté vacía. Si hay 3 o más intentos fallidos de inicio de sesión, se bloquea el acceso del usuario temporalmente. 
- * Si existe una cookie de bloqueo de usuario, se muestra una página HTML indicando que el acceso está bloqueado. 
- * Si la contraseña es correcta, se insertan las variables de sesión correspondientes y se redirige al usuario a la página principal. 
- * Si la contraseña es incorrecta, se incrementa el contador de intentos fallidos y se muestra un mensaje de error al usuario, 
+ * login: Esta función se encarga de realizar el proceso de inicio de sesión del usuario. En primer lugar, comprueba que
+ * la contraseña no esté vacía. Si hay 3 o más intentos fallidos de inicio de sesión, se bloquea el acceso del usuario temporalmente.
+ * Si existe una cookie de bloqueo de usuario, se muestra una página HTML indicando que el acceso está bloqueado.
+ * Si la contraseña es correcta, se insertan las variables de sesión correspondientes y se redirige al usuario a la página principal.
+ * Si la contraseña es incorrecta, se incrementa el contador de intentos fallidos y se muestra un mensaje de error al usuario,
  * indicando cuántos intentos le quedan antes de ser bloqueado.
- * logout: Esta función se encarga de cerrar la sesión del usuario, eliminando todas las variables de sesión y redirigiéndolo al 
+ * logout: Esta función se encarga de cerrar la sesión del usuario, eliminando todas las variables de sesión y redirigiéndolo al
  * sitio principal.
-* @package MediaManager
-* @category Trait
-*/
+ * @package MediaManager
+ * @category Trait
+ */
 trait Auth
 {
 
@@ -359,6 +359,7 @@ trait Auth
             $this->error('La configuración de la contraseña no puede estar vacía');
         }
 
+        // Iniciamos la clase PasswordHasher
         $hasher = new PasswordHasher(PASSWORD_BCRYPT, ['cost' => 50]);
 
         // Obtener el número de intentos de acceso fallidos
@@ -427,13 +428,13 @@ trait Auth
 }
 
 /**
-* Trait Msg
-* Este trait proporciona métodos para mostrar mensajes en una página web utilizando la sesión del usuario.
-* Los mensajes pueden ser establecidos utilizando el método msgSet() y posteriormente recuperados y mostrados
-* en la página web utilizando el método msgGet().
-* @package MediaManager
-* @category Trait
-*/
+ * Trait Msg
+ * Este trait proporciona métodos para mostrar mensajes en una página web utilizando la sesión del usuario.
+ * Los mensajes pueden ser establecidos utilizando el método msgSet() y posteriormente recuperados y mostrados
+ * en la página web utilizando el método msgGet().
+ * @package MediaManager
+ * @category Trait
+ */
 trait Msg
 {
 
@@ -476,15 +477,15 @@ trait Msg
 }
 
 /**
-* Trait Icons
-* Este trait proporciona métodos para mostrar los iconos de en una página web.
-* checkExtension: Comprueba si una extensión está en el valor de alguno de los tipos de extensión y devuelve la clave y el valor correspondiente
-* icon:Función para obtener el icono correspondiente según el nombre y la extensión de un archivo.
-* renderIconByType: Función para redenderizar un icono especifico a partir de los argumentos obtenidos.
-* @package MediaManager
-* @category Trait
-*/
-trait Icons 
+ * Trait Icons
+ * Este trait proporciona métodos para mostrar los iconos de en una página web.
+ * checkExtension: Comprueba si una extensión está en el valor de alguno de los tipos de extensión y devuelve la clave y el valor correspondiente
+ * icon:Función para obtener el icono correspondiente según el nombre y la extensión de un archivo.
+ * renderIconByType: Función para redenderizar un icono especifico a partir de los argumentos obtenidos.
+ * @package MediaManager
+ * @category Trait
+ */
+trait Icons
 {
     /**
      * Comprueba si una extensión está en el valor de alguno de los tipos de extensión y devuelve la clave y el valor correspondiente
@@ -498,6 +499,7 @@ trait Icons
         $extensionsType = [
             'isImage' => $this->getOption('imageSupport'),
             'isVideo' => $this->getOption('videoSupport'),
+            'isAudio' => $this->getOption('audioSupport'),
             'isEditable' => $this->getOption('editableFilesSupport'),
             'nonEditable' => $this->getOption('nonEditableFilesSupport'),
         ];
@@ -556,6 +558,7 @@ trait Icons
             'zip' => '<path d="M6.5 7.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v.938l.4 1.599a1 1 0 0 1-.416 1.074l-.93.62a1 1 0 0 1-1.109 0l-.93-.62a1 1 0 0 1-.415-1.074l.4-1.599V7.5zm2 0h-1v.938a1 1 0 0 1-.03.243l-.4 1.598.93.62.93-.62-.4-1.598a1 1 0 0 1-.03-.243V7.5z"/><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm5.5-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9v1H8v1h1v1H8v1h1v1H7.5V5h-1V4h1V3h-1V2h1V1z"/>',
             'external' => '<path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>',
             'download' => '<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>',
+            'audio' => '<path d="M4 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM7 6a1 1 0 0 0 0 2h2a1 1 0 1 0 0-2H7Z"/><path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13ZM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-.691l-1.362-2.724A.5.5 0 0 0 12 10H4a.5.5 0 0 0-.447.276L2.19 13H1.5a.5.5 0 0 1-.5-.5v-9ZM11.691 11l1 2H3.309l1-2h7.382Z"/>',
         ];
         // Imprimimos el svg
         return '<svg  viewBox="0 0 16 16" class="icon-' . $name . '">' . trim($icons[$name]) . '</svg>';
@@ -574,6 +577,7 @@ trait Icons
         $iconMap = [
             'isImage' => 'image',
             'isVideo' => 'video',
+            'isAudio' => 'audio',
             'isEditable' => [
                 'xml' => 'xml',
                 'sql' => 'sql',
@@ -622,33 +626,103 @@ trait Icons
 }
 
 /**
-* Trait Utils
-* Este trait proporciona utilidades para la clase MediaManager.
-* removeFile: Función para borrar archivos.
-* saveContent: Función que permite guardar el contenido de un archivo.
-* moveFiles: Función que permite mover un archivo de una ubicación a otra.
-* moveDir: Función para mover una carpeta entera.
-* isRoot: Función para comprobar si una URL tiene segmentos.
-* parseUrl: La función parseUrl() toma una URL como entrada y devuelve una nueva URL sin diagonales invertidas dobles en su ruta.
-* sanitizeFileContents: Sanitiza el contenido que hay dentro de file_get_contents.
-* checkIsImage: Comprobar si es una imagen.
-* checkIsEditable: Comprueba si es un archivo editable
-* debug: Obtener información de los datos en formato JSON y devolverla como HTML con una etiqueta de detalles plegable.
-* getPost: $_POST con extras de seguridad.
-* get: $_GET con extras de seguridad.
-* formatFileSize: Convierte un tamaño de archivo en Bytes a una unidad de medida más legible para el usuario, como KB, MB, GB o TB.
-* createBreadcrumb: Genera el breadcrumb en formato HTML.
-* error: Proporciona un mensaje de error con opcion de codigo de estado.
-* redirect: Redirecciona a una URL.
-* cleanName: Elimina caracteres especiales como acentos y comas.
-* removeDir: Elimina un directorio y su contenido de forma recursiva.
-* createDir: Crea una carpeta en el directorio especificado.
-* createFile: Crea un archivo en el directorio especificado.
-* @package MediaManager
-* @category Trait
-*/
-trait Utils 
+ * Trait Utils
+ * Este trait proporciona utilidades para la clase MediaManager.
+ * unzip: Descomprime un archivo ZIP.
+ * getWebServerDetails: Devuelve una cadena de texto con los detalles del servidor web, incluyendo el software y la versión de PHP.
+ * removeFile: Función para borrar archivos.
+ * saveContent: Función que permite guardar el contenido de un archivo.
+ * moveFiles: Función que permite mover un archivo de una ubicación a otra.
+ * moveDir: Función para mover una carpeta entera.
+ * isRoot: Función para comprobar si una URL tiene segmentos.
+ * parseUrl: La función parseUrl() toma una URL como entrada y devuelve una nueva URL sin diagonales invertidas dobles en su ruta.
+ * sanitizeFileContents: Sanitiza el contenido que hay dentro de file_get_contents.
+ * checkIsImage: Comprobar si es una imagen.
+ * checkIsEditable: Comprueba si es un archivo editable
+ * debug: Obtener información de los datos en formato JSON y devolverla como HTML con una etiqueta de detalles plegable.
+ * getPost: $_POST con extras de seguridad.
+ * get: $_GET con extras de seguridad.
+ * formatFileSize: Convierte un tamaño de archivo en Bytes a una unidad de medida más legible para el usuario, como KB, MB, GB o TB.
+ * createBreadcrumb: Genera el breadcrumb en formato HTML.
+ * error: Proporciona un mensaje de error con opcion de codigo de estado.
+ * redirect: Redirecciona a una URL.
+ * cleanName: Elimina caracteres especiales como acentos y comas.
+ * removeDir: Elimina un directorio y su contenido de forma recursiva.
+ * createDir: Crea una carpeta en el directorio especificado.
+ * createFile: Crea un archivo en el directorio especificado.
+ * @package MediaManager
+ * @category Trait
+ */
+trait Utils
 {
+
+
+    /**
+     * Descomprime un archivo ZIP.
+     *
+     * @param string $zip_file Ruta del archivo ZIP a descomprimir.
+     * @param string $destination Ruta donde se almacenarán los archivos descomprimidos.
+     * @return bool True si el archivo ZIP se descomprimió correctamente, de lo contrario False.
+     */
+    public function unzip($zip_file, $destination)
+    {
+        // Verifica si el archivo ZIP existe.
+        if (!file_exists($zip_file)) {
+            echo "El archivo ZIP no existe.";
+            return false;
+        }
+
+        // Crea un objeto ZipArchive.
+        $zip = new ZipArchive();
+
+        // Abre el archivo ZIP.
+        if ($zip->open($zip_file) === true) {
+            // Extrae los archivos del archivo ZIP en la ruta de destino especificada.
+            $zip->extractTo($destination);
+            // Cierra el archivo ZIP.
+            $zip->close();
+            $this->msgSet('Bien 😁', "El archivo {$filename} se descomprimió correctamente.");
+            $this->redirect($this->getOption('Site_url') . '?get=dir&name=' . base64_encode(dirname($destination)));
+            return true;
+        } else {
+            $this->msgSet('Bien 😁', "Error al abrir el archivo ZIP {$filename}.");
+            $this->redirect($this->getOption('Site_url') . '?get=dir&name=' . base64_encode(dirname($zip_file)));
+            return false;
+        }
+    }
+
+    /**
+     * Devuelve una cadena de texto con los detalles del servidor web, incluyendo el software y la versión de PHP.
+     *
+     * @return string
+     */
+    public function getWebServerDetails(): string
+    {
+        // Obtener la información del software del servidor desde la variable $_SERVER
+        $serverSoftware = $_SERVER["SERVER_SOFTWARE"];
+
+        // Si la variable no está vacía, agregar la versión de PHP al final de la cadena
+        if (!empty($serverSoftware)) {
+            $serverSoftware = strpos($serverSoftware, "PHP") !== false ? $serverSoftware : $serverSoftware . ' ' . 'PHP/' . PHP_VERSION;
+        }
+
+        // Reemplazar los caracteres '+' y '~' por espacios en blanco para unificar el formato de la cadena
+        $serverSoftware = str_replace(array('+', '~'), ' ', $serverSoftware);
+
+        // Dividir la cadena en palabras individuales y formatear cada una de ellas con una etiqueta HTML
+        $words = explode(' ', $serverSoftware);
+        $formattedWords = array_map(function ($word) {
+            return '<span class="badge">' . $word . '</span>';
+        }, $words);
+
+        // Unir las palabras formateadas en una sola cadena de texto
+        $serverDetails = implode(' ', $formattedWords);
+
+        // Limitar la cadena a las primeras cuatro palabras, ya que la información adicional puede no ser relevante o estar incompleta
+        $serverDetails = implode(' ', array_slice($formattedWords, 0, 4));
+
+        return $serverDetails;
+    }
 
     /**
      * Función para borrar archivos
@@ -777,36 +851,17 @@ trait Utils
     }
 
     /**
-     * Función para comprobar si una URL tiene segmentos.
+     * Función para comprobar si la carpeta es el directorio raiz
      *
      * @param string $url La URL a comprobar.
-     * @return bool Devuelve true si la URL tiene segmentos, false en caso contrario.
+     * @return bool Devuelve true si la URL es el directorio raiz.
      */
     public function isRoot(string $dir = ""): bool
     {
-        // Comprobar si la carpeta existe
-        if (!file_exists($dir) || !is_dir($dir)) {
-            return false;
+        // Comprobar si la carpeta es el directorio raiz
+        if ($dir == ROOT) {
+            return true;
         }
-
-        // Abrir la carpeta y leer su contenido
-        if ($folders = opendir($dir)) {
-            while (false !== ($file = readdir($folders))) {
-                // Saltar los directorios '.' y '..'
-                if ($file != '.' && $file != '..') {
-                    // Comprobar si es un archivo
-                    if (is_file($dir . '/' . $file)) {
-                        // Procesar el archivo
-                        if ($file == $this->getOption('root_file')) {
-                            closedir($folders);
-                            return true;
-                        }
-                    }
-                }
-            }
-            closedir($folders);
-        }
-
         // Si no se encontró el archivo, retornar false
         return false;
     }
@@ -825,10 +880,10 @@ trait Utils
 
         // Reemplazar cualquier diagonal invertida doble en la ruta de la URL utilizando la función str_replace()
         $path = str_replace("//", "/", $parts["path"]);
-
+        // Comprobamos si existe el puerto
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
         // Reconstruir la URL utilizando las partes originales y la nueva ruta sin diagonales invertidas dobles
-        $newUrl = $parts["scheme"] . "://" . $parts["host"] . $path;
-
+        $newUrl = $parts["scheme"] . "://" . $parts["host"] . $port . $path;
         // Devolver la nueva URL resultante
         return $newUrl;
     }
@@ -905,15 +960,12 @@ trait Utils
         // Si se está depurando un archivo, resalta su código fuente; de lo contrario, resalta el JSON y envuelve todo en una etiqueta.
         $output = ($isFile) ? highlight_file($filename, true) : highlight_string('<?php' . PHP_EOL . $output . PHP_EOL . '?>', true);
 
-        // Establece el estilo CSS para el cuadro de depuración.
-        $css = "margin: 0;margin-bottom: 10px;white-space:pre-wrap;word-break:break-word;padding: 5px;box-sizing: border-box;background: var(--light-900);border:1px solid var(--dark-100);color: var(--light-900);";
-
         // Crea la salida HTML para la depuración.
         $html = <<<HTML
             <details class="debug" style="padding:0;margin:20px auto;">
                 <summary>Debug</summary>
-                    <div class="details-body">
-                        <pre style="{$css}">
+                    <div class="details-body ">
+                        <pre class="p-1 bg-light border">
                             {$output}
                         </pre>
                     </div>
@@ -1003,13 +1055,13 @@ trait Utils
         // Separamos las carpetas de la ruta
         $folders = explode('/', str_replace($root, '', $path));
         // Iniciamos el breadcrumb con el enlace a la carpeta raíz
-        $breadcrumb = '<nav aria-label="breacrumb" class="breadcrumb"><ol><li><a href="' . $this->getOption('Site_url') . '">Inicio</a></li>';
+        $breadcrumb = '<nav aria-label="breacrumb"><ol class="breadcrumb rounded-0"><li class="breadcrumb-item active" aria-current="page"><a class="text-decoration-none text-black" href="' . $this->getOption('Site_url') . '">Inicio</a></li>';
         // Creamos los enlaces a cada carpeta
         $route = '';
         foreach ($folders as $folder) {
             if (!empty($folder)) {
                 $route .= '/' . $folder;
-                $breadcrumb .= '<li><a href="' . $this->getOption('Site_url') . '?get=dir&name=' . base64_encode(ROOT . $route) . '">' . $folder . '</a></li>';
+                $breadcrumb .= '<li class="breadcrumb-item"><a class="text-dark text-decoration-none" href="' . $this->getOption('Site_url') . '?get=dir&name=' . base64_encode(ROOT . $route) . '">' . $folder . '</a></li>';
             }
         }
         // Cerramos el breadcrumb
@@ -1085,7 +1137,11 @@ trait Utils
         $txt = preg_replace("/[^a-z0-9-]+/", "", $txt); // Elimina caracteres especiales y acentos
         $txt = trim($txt, "-"); // Elimina guiones al principio y al final
         $txt = preg_replace("/-{2,}/", "-", $txt); // Elimina guiones duplicados
-
+        // Asegurarse de que la cadena no sea demasiado larga
+        $max_length = 50;
+        if(strlen($txt) > $max_length) {
+            $txt = substr($txt, 0, $max_length);
+        }
         return $txt;
     }
 
@@ -1146,7 +1202,6 @@ trait Utils
         return $success;
     }
 
-    
     /**
      * Crea una carpeta en el directorio especificado
      *
@@ -1178,7 +1233,6 @@ trait Utils
         if (!file_exists($folderName)) {
             // Obtenemos la extension
             $extension = pathinfo($folderName, PATHINFO_EXTENSION);
-
             // Comprobamos que es editable y lleva extension
             if ($extension && in_array($extension, $this->getOption('editableFilesSupport'))) {
                 $archivo = fopen($folderName, "w") or die("No se pudo crear el archivo.");
@@ -1197,14 +1251,14 @@ trait Utils
 }
 
 /**
-* Trait FilesystemInfo
-* Este trait proporciona información de carpetas y archivos.
-*
-* getDirInfo: Obtener las carpetas y archivos.
-* getFileInfo: Obtener la información del archivo.
-* @package MediaManager
-* @category Trait
-*/
+ * Trait FilesystemInfo
+ * Este trait proporciona información de carpetas y archivos.
+ *
+ * getDirInfo: Obtener las carpetas y archivos.
+ * getFileInfo: Obtener la información del archivo.
+ * @package MediaManager
+ * @category Trait
+ */
 trait FilesystemInfo
 {
 
@@ -1212,9 +1266,9 @@ trait FilesystemInfo
      * Obtener las carpetas y archivos
      *
      * @param [type] $dir
-     * @return void
+     * @return array
      */
-    public function getDirInfo($dir)
+    public function getDirInfo($dir): array
     {
         // Verificar si la ruta es un directorio
         if (is_dir($dir)) {
@@ -1226,8 +1280,8 @@ trait FilesystemInfo
                 $root = str_replace(ROOT, '', $dir);
                 // Leemos el directorio
                 while (($file = readdir($dh)) !== false) {
-                    // No enseñar esto: Saltar archivos ocultos como .htaccess, .git y .gitignore
-                    if (basename($file) == '.htaccess' || basename($file) == '.git' || basename($file) == '.gitignore') {
+                    // No enseñar esto: Saltar archivos ocultos como .htaccess, .git y .gitignore que hay en la opcion exclude
+                    if (in_array(basename($file), $this->getOption('exclude'))) {
                         continue;
                     }
                     // Si el archivo no es un archivo oculto
@@ -1274,8 +1328,8 @@ trait FilesystemInfo
                 return $result;
             }
         }
-        // Si la ruta no es un directorio, devolvemos false
-        return false;
+        // Si la ruta no es un directorio, devolvemos un array vacio
+        return [];
     }
 
     /**
@@ -1286,28 +1340,31 @@ trait FilesystemInfo
      */
     public function getFileInfo(string $filename = "")
     {
-        // Obtenemos el tamaño del archivo en bytes
-        $filesize = filesize($filename);
-        // Obtenemos la fecha de modificación del archivo en formato Unix timestamp
-        $filedate = filemtime($filename);
-        // Obtenemos los permisos del archivo en octal
-        $fileperms = fileperms($filename);
-        // Devolvemos un array con la información del archivo
-        return [
-            'filepath' => $filename, // Ruta y nombre del archivo
-            'fileinfo' => pathinfo($filename), // Información del archivo (nombre, extensión, directorio, etc.)
-            'fileperms' => decoct($fileperms&0777), // Permisos del archivo en octal
-            'filesize' => $this->formatFileSize($filesize), // Tamaño del archivo en bytes
-            'filedate' => date("d-m-Y H:i:s", $filedate), // Fecha de modificación del archivo en formato humano
-        ];
+        if (is_dir($filename) || is_file($filename)) {
+            // Obtenemos el tamaño del archivo en bytes
+            $filesize = filesize($filename);
+            // Obtenemos la fecha de modificación del archivo en formato Unix timestamp
+            $filedate = filemtime($filename);
+            // Obtenemos los permisos del archivo en octal
+            $fileperms = fileperms($filename);
+            // Devolvemos un array con la información del archivo
+            return [
+                'filepath' => $filename, // Ruta y nombre del archivo
+                'fileinfo' => pathinfo($filename), // Información del archivo (nombre, extensión, directorio, etc.)
+                'fileperms' => decoct($fileperms&0777), // Permisos del archivo en octal
+                'filesize' => $this->formatFileSize($filesize), // Tamaño del archivo en bytes
+                'filedate' => date("d-m-Y H:i:s", $filedate), // Fecha de modificación del archivo en formato humano
+            ];
+        }
+        return [];
     }
 
 }
 
 /**
-* Trait HtmlView
-* Este trait proporciona funciones para imprimir el html en la página.
-*
+ * Trait HtmlView
+ * Este trait proporciona funciones para imprimir el html en la página.
+ *
  * cssStructureByDefault: Structura css por defecto.
  * generateHead:Generamos el head.
  * generateHeader:Generamos el header.
@@ -1320,98 +1377,12 @@ trait FilesystemInfo
  * createDirView: Generamos la vista de crear directorio.
  * removeDirView: Generamos la vista de borrar directorio.
  * loginView: Generamos la vista del login.
- * 
+ *
  * @package MediaManager
-* @category Trait
-*/
+ * @category Trait
+ */
 trait HtmlView
 {
-    /**
-     * Structura css por defecto
-     *
-     * @return string
-     */
-    public function cssStructureByDefault(): string
-    {
-        return <<<CSS
-            :root{--font-sans-serif:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--font-size:12px;--font-weight:400;--line-height:1.6;--blue-100:#588df9;--blue-200:#6b9afa;--blue-300:#7da6fa;--blue-400:#90b3fb;--blue-500:#a2c0fc;--blue-600:#b5ccfc;--blue-700:#c7d9fd;--blue-800:#dae6fe;--blue-900:#ecf2fe;--yellow-100:#e6f958;--yellow-200:#e9fa6b;--yellow-300:#ecfa7d;--yellow-400:#eefb90;--yellow-500:#f1fca2;--yellow-600:#f4fcb5;--yellow-700:#f7fdc7;--yellow-800:#f9feda;--yellow-900:#fcfeec;--red-100:#f95858;--red-200:#fa6b6b;--red-300:#fa7d7d;--red-400:#fb9090;--red-500:#fca2a2;--red-600:#fcb5b5;--red-700:#fdc7c7;--red-800:#fedada;--red-900:#feecec;--dark-100:#000000;--dark-200:#1c1c1c;--dark-300:#393939;--dark-400:#555555;--dark-500:#717171;--dark-600:#8e8e8e;--dark-700:#aaaaaa;--dark-800:#c6c6c6;--dark-900:#e3e3e3;--light-100:#e3e3e3;--light-200:#e6e6e6;--light-300:#e9e9e9;--light-400:#ececec;--light-500:#efefef;--light-600:#f3f3f3;--light-700:#f6f6f6;--light-800:#f9f9f9;--light-900:#fcfcfc}
-            ::-webkit-scrollbar{background:var(--light-900);width:5px;height:5px}
-            ::-webkit-scrollbar-thumb{background:var(--light-100);border-radius:4px}
-            html{overflow-y:auto}
-            audio,canvas,img,video{max-width:100%}
-            *{box-sizing:border-box}
-            body,html{position:relative;height:100%}
-            body{height:100%;margin:0 auto;overflow:hidden;background:var(--light-900);padding:0;font-family:var(--font-monospace);font-size:var(--font-size);font-weight:var(--font-weight);line-height:var(--line-height);color:var(--dark-100)}
-            @media (max-width:768px){
-            body{margin:0;width:100%;height:100%;overflow:auto}
-            }
-            main{height:100%;width:100%;margin:auto}
-            input[type=number],input[type=password],input[type=text]{padding:5px;margin:5px 0;background:var(--light-600);border:1px solid var(--dark-100);font-size:var(--font-size);line-height:var(--line-height)}
-            input[type=number]:focus,input[type=password]:focus,input[type=text]:focus{border:1px solid var(--blue-100);outline:1px solid var(--blue-100)}
-            input[type=submit]{display:inline-block;cursor:pointer;padding:5px 8px;font-size:var(--font-size);line-height:var(--line-height)}
-            input[type=submit]{background:var(--dark-300);color:var(--light-100);border-color:var(--dark-100)}
-            input[type=submit]:focus,input[type=submit]:hover{background:var(--dark-200);color:var(--light-100);border-color:var(--dark-100)}
-            .options{margin-bottom:5px}
-            .btn{display:inline-block;text-decoration:none;background:var(--light-600);color:var(--dark-100);border:1px solid var(--light-400);padding:5px 10px;margin:5px 0;font-size:var(--font-size);line-height:var(--line-height);font-family:var(--font-sans-serif)}
-            .btn svg{width:22px;height:22px;fill:var(--dark-100);display:flex;justify-content:center;align-items:center;margin:0;padding:3px}
-            .btn:focus,.btn:hover{text-decoration:none;background:var(--light-300)}
-            .content .btn{margin-right:5px}
-            .content .btn-danger{background:var(--red-300);border-color:var(--red-100);color:var(--red-900)}
-            .content .btn-danger:focus,.content .btn-danger:hover{background:var(--red-100);color:var(--light-900)}
-            .content .btn-danger svg{fill:var(--light-100)}
-            .content .btn-danger:focus svg,.content .btn-danger:hover svg{fill:var(--light-900)}
-            .content .btn-blue{background:var(--blue-200);border-color:var(--blue-100);color:var(--light-100)}
-            .content .btn-blue:focus,.content .btn-blue:hover{background:var(--blue-900);color:var(--blue-100)}
-            .content .btn-blue svg{fill:var(--light-100)}
-            .content .btn-yellow {background: var(--yellow-300);border-color: var(--dark-100);color: var(--dark-100);}
-            .content .btn-yellow svg {fill: var(--dark-100);}
-            .content .btn-yellow:hover,.content .btn-yellow:focus{background: var(--yellow-500);}
-            .content .btn-dark {background: var(--dark-100);border-color: var(--dark-100);color: var(--light-100);}
-            .content .btn-dark svg {fill: var(--light-100);}
-            .content .btn-dark:hover,.content .btn-dark:focus{background: var(--dark-500);border-color: var(--dark-100);color: var(--light-100);}
-            .content .group-btn a {min-height: 36px;line-height: 25px;}
-            .notification{position:absolute;bottom:1rem;right:1rem;padding:5px 10px;background:var(--dark-100);color:var(--light-100)}
-            .header{min-height:50px;display:flex;flex-direction:row;flex-wrap:nowrap;align-content:center;justify-content:space-between;align-items:center;padding:5px;background:var(--light-700);border-bottom:1px solid var(--light-200)}
-            .content{height:calc(100% - 144px);box-sizing:border-box;overflow:auto;padding:10px;width:100%;margin:0}
-            @media (max-width:768px){
-            .content{height:auto;overflow:hidden;padding:5px}
-            }
-            .logo{margin:0 20px}
-            .logo a{display:flex;flex-wrap:nowrap;align-content:center;justify-content:center;align-items:center;text-decoration:none;color:var(--dark-100)}
-            .logo a span{margin-left:5px}
-            .logo a img{border-radius:100%}
-            .navigation{margin:0 20px}
-            .navigation a{margin-top:6px}
-            .footer{display:flex;justify-content:space-between;min-height:35px;align-content:center;align-items:center;border-top:1px solid var(--light-100);background:var(--light-700);padding:5px 10px;color:var(--dark-100)}
-            nav.breadcrumb{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--light-600);border-bottom: 1px solid var(--light-400);}
-            nav.breadcrumb ol{list-style:none;margin:0;padding:5px;display:flex;background:var(--light-600)}
-            nav.breadcrumb ol li{position:relative}
-            nav.breadcrumb ol li:before{content:"/";color:var(--light-100);margin:0 4px}
-            nav.breadcrumb a{text-decoration:none;color:var(--dark-100)}
-            nav.breadcrumb a:focus,nav.breadcrumb a:hover{color:var(--dark-400)}
-            body[data-theme=dark]{background:var(--dark-100);color:var(--light-100)}
-            body[data-theme=dark] .header{background:var(--dark-200);border-bottom:1px solid var(--dark-100)}
-            body[data-theme=dark] .logo span{color:var(--light-100)}
-            body[data-theme=dark] .navigation a{color:var(--light-100)}
-            body[data-theme=dark] .footer{border-color:var(--dark-100);background:var(--dark-200);color:var(--light)}
-            body[data-theme=dark] .btn{background:var(--dark-100);border-color:var(--dark-100);color:var(--light-100)}
-            body[data-theme=dark] .btn svg{fill:var(--dark-900)}
-            body[data-theme=dark] .btn:focus,body[data-theme=dark] .content .btn:hover{background:var(--dark-400)}
-            body[data-theme=dark] .content .btn{border-color:var(--light-100)}
-            body[data-theme=dark] .content .btn-danger{background:var(--dark-100);border-color:var(--red-100);color:var(--red-100)}
-            body[data-theme=dark] .content .btn-danger:focus,body[data-theme=dark] .content .btn-danger:hover{background:var(--red-300)}
-            body[data-theme=dark] .content .btn-danger svg{fill:var(--red-100)}
-            body[data-theme=dark] .content .btn-danger:focus svg,body[data-theme=dark] .content .btn-danger:hover svg{fill:var(--light-100)}
-            body[data-theme=dark] ::-webkit-scrollbar{background:var(--dark-200);width:5px}
-            body[data-theme=dark] ::-webkit-scrollbar-thumb{background:var(--dark-100);border-radius:2px}
-            body[data-theme=dark] nav.breadcrumb{background:var(--dark-200)}
-            body[data-theme=dark] nav.breadcrumb ol{background:var(--dark-200)}
-            body[data-theme=dark] nav.breadcrumb ol li:before{color:var(--dark-300)}
-            body[data-theme=dark] nav.breadcrumb a{color:var(--light-100)}
-            body[data-theme=dark] nav.breadcrumb a:focus,body[data-theme=dark] nav.breadcrumb a:hover{color:var(--light-400)}
-            body[data-theme=dark] input[type=number],body[data-theme=dark] input[type=password],body[data-theme=dark] input[type=text]{background:var(--dark-200);border:1px solid var(--light-100);color:var(--light-100)}
-        CSS;
-    }
 
     /**
      * Generamos el head
@@ -1422,8 +1393,13 @@ trait HtmlView
     public function generateHead(string $otherCss = ""): string
     {
         $title = $this->getOption('title'); // Título del sitio web
-        $cssStructureByDefault = $this->cssStructureByDefault(); // CSS por defecto
 
+        $links = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" />';
+        // Si estamos en la vista de edicion cargamos CodeMirror
+        if(array_key_exists('get',$_GET) && $this->get('get') == 'file') {
+            $links .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" />';
+            $links .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/material-darker.min.css" integrity="sha512-2OhXH4Il3n2tHKwLLSDPhrkgnLBC+6lHGGQzSFi3chgVB6DJ/v6+nbx+XYO9CugQyHVF/8D/0k3Hx1eaUK2K9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />';
+        }
         // Retornar la sección head del HTML
         return <<<HTML
             <head>
@@ -1435,10 +1411,11 @@ trait HtmlView
                 <meta http-equiv="Expires" content="0">
                 <meta name="referrer" content="no-referrer-when-downgrade">
                 <meta name="robots" content="noindex,nofollow">
-                <style rel="stylesheet">{$cssStructureByDefault}</style>
+                {$links}
+                <style rel="stylesheet">input,.btn{border-radius:0!important;}img{max-width:100%;}.btn svg{width:22px;height:22px;fill:var(--bs-dark);display:flex;justify-content:center;align-items:center;margin:0;padding:3px}.btn-primary svg,.btn-dark svg,.btn-danger svg,.btn-secondary svg{fill:var(--bs-light)}</style>
                 <style rel="stylesheet">{$otherCss}</style>
             </head>
-            HTML;
+        HTML;
     }
 
     /**
@@ -1453,17 +1430,27 @@ trait HtmlView
      */
     public function generateHeader(string $url, string $title, string $logo, string $homeIcon, string $logoutTpl): string
     {
+        $urlHome = ($this->isLogin()) ? '<a class="nav-link" href="' . $url . '">Inicio</a>' : '';
+        $urlGeneratePass = ($this->isLogin()) ? '<a class="nav-link" href="' . $url . '?generar=password">Generar</a>' : '';
         return <<<HTML
             <header class="header">
-                <div class="logo">
-                    <a href="{$url}">
-                        <img src="{$logo}" class="mr-1"/>
-                        <span>{$title}</span>
-                    </a>
-                </div>
-                <nav class="navigation">
-                    <a class="btn" href="{$url}">{$homeIcon}</a>
-                    {$logoutTpl}
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="{$url}">
+                            <img class="rounded-pill" src="{$logo}" alt="logo">
+                            <span>{$title}</span>
+                        </a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                            <div class="navbar-nav ms-auto mb-2 mb-lg-0">
+                                {$urlHome}
+                                {$urlGeneratePass}
+                                {$logoutTpl}
+                            </div>
+                        </div>
+                    </div>
                 </nav>
             </header>
         HTML;
@@ -1473,15 +1460,20 @@ trait HtmlView
     /**
      * Generamos el footer
      *
-     * @return void
+     * @return string
      */
-    public function generateFooter()
+    public function generateFooter(): string
     {
         $year = date('Y');
         return <<<HTML
-            <footer class="footer">
-                <div class="copyright">Moncho Varela © {$year}</div>
-                <button class="toogle-theme btn">🌞</button>
+            <footer class="footer mt-4 text-center">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="copyright">Moncho Varela © {$year}</p>
+                        </div>
+                    </div>
+                </div>
             </footer>
         HTML;
     }
@@ -1496,11 +1488,37 @@ trait HtmlView
     {
         // imprimimos la session
         $session = $this->msgGet('msg');
-        return <<<HTML
-            <script rel="javascript">function message(i,r){let s=document.createElement("div");s.className="notification",s.innerHTML="<strong>"+i+"</strong> - "+r,document.body.appendChild(s);let l=setTimeout(function(){s.remove(),clearTimeout(l)},3e3)}const e=i=>document.querySelector(i),t=localStorage.getItem("theme"),o=()=>{document.body.setAttribute("data-theme","dark"),e(".toogle-theme").innerHTML="\uD83C\uDF1A"},a=()=>{document.body.setAttribute("data-theme","light"),e(".toogle-theme").innerHTML="\uD83C\uDF1E"},d=i=>{i.preventDefault(),"dark"===document.body.getAttribute("data-theme")?(a(),localStorage.setItem("theme","light")):(o(),localStorage.setItem("theme","dark"))};document.addEventListener("DOMContentLoaded",()=>{"dark"===t?o():a(),e(".toogle-theme").addEventListener("click",d)})</script>
-            <script rel="javascript">{$js}</script>
-            {$session}
-        HTML;
+        $scripts = '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>';
+        // Si estamos en la vista de edicion cargamos CodeMirror
+        if(array_key_exists('get',$_GET) && $this->get('get') == 'file') {
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/markdown/markdown.js" integrity="sha512-HO6T6BeQvqVauqK9yn7/pkoiaaowmxIbN0Q15kjsM/8oJJ3seJI0/DlEqlEosGrpNkhPowUkV9hvrVtB+rqoDw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/htmlmixed/htmlmixed.min.js" integrity="sha512-HN6cn6mIWeFJFwRN9yetDAMSh+AK9myHF1X9GlSlKmThaat65342Yw8wL7ITuaJnPioG0SYG09gy0qd5+s777w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/css/css.min.js" integrity="sha512-rQImvJlBa8MV1Tl1SXR5zD2bWfmgCEIzTieFegGg89AAt7j/NBEe50M5CqYQJnRwtkjKMmuYgHBqtD1Ubbk5ww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js" integrity="sha512-I6CdJdruzGtvDyvdO4YsiAq+pkWf2efgd1ZUSK2FnM/u2VuRASPC7GowWQrWyjxCZn6CT89s3ddGI+be0Ak9Fg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/php/php.min.js" integrity="sha512-jZGz5n9AVTuQGhKTL0QzOm6bxxIQjaSbins+vD3OIdI7mtnmYE6h/L+UBGIp/SssLggbkxRzp9XkQNA4AyjFBw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js" integrity="sha512-LarNmzVokUmcA7aUDtqZ6oTS+YXmUKzpGdm8DxC46A6AHu+PQiYCUlwEGWidjVYMo/QXZMFMIadZtrkfApYp/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+            $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/clike/clike.min.js" integrity="sha512-l8ZIWnQ3XHPRG3MQ8+hT1OffRSTrFwrph1j1oc1Fzc9UKVGef5XN9fdO0vm3nW0PRgQ9LJgck6ciG59m69rvfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
+        }
+        $scripts .= '<script rel="javascript">
+                function message(title,msg){
+                    const html =  `<div class="toast show fixed-top m-2" role="alert" aria-live="assertive" aria-atomic="true" id="msg-notification">
+                        <div class="toast-header">
+                            <span class="bg-primary p-1 rounded-pill mx-2" style="width:5px;height:5px;"></span>
+                            <strong class="me-auto">${title}</strong>
+                        </div>
+                        <div class="toast-body">${msg}</div>
+                    </div>`;
+                    document.body.innerHTML += html;
+                    let w = setTimeout(() => {
+                        document.getElementById("msg-notification").remove();
+                        clearTimeout(w);
+                    },2000);
+                }
+            </script>';
+        $scripts .= '<script rel="javascript">' . $js . '</script>';
+        $scripts .= $session;
+        return $scripts;
     }
 
     /**
@@ -1518,13 +1536,12 @@ trait HtmlView
         $title = $this->getOption('title'); // Título del sitio web
         $logo = $this->getOption('logo'); // Logo del sitio web
         $homeIcon = $this->icon('home'); // Icono
-
         // Carpeta donde se subirán archivos, si está definida
         $folderToUpload = ($current) ? base64_encode($current) : '';
         // Llamamos a la función createBreadcrumb
         $breadcrumb = $this->createBreadcrumb($current, ROOT);
         // boton de logout que solo sale si estamos logueados
-        $logoutTpl = ($this->isLogin()) ? '<a class="btn" href="' . $url . '?logout=true">' . $this->icon('auth') . '</a>' : '';
+        $logoutTpl = ($this->isLogin()) ? '<a class="nav-link" href="' . $url . '?logout=true">Salir</a>' : '';
         // Llamamos a la función generateHead
         $head = $this->generateHead($css);
         // Llamamos a la función generateHeader
@@ -1533,16 +1550,6 @@ trait HtmlView
         $footer = $this->generateFooter();
         // Llamamos a la función generateScripts
         $scripts = $this->generateScripts($js);
-
-        // Imprimimos debug si esta activado
-        $debug = DEBUG ? $this->debug([
-            'is_root' => $this->isRoot($current),
-            'session_hash' => $this->sessionGet('_login_hash'),
-            'session_ip' => $this->sessionGet('_ip'),
-            'session_date' => $this->sessionGet('_time'),
-            'GET' => $_GET,
-        ]) : '';
-
         // plantilla html
         return <<<HTML
             <!Doctype html>
@@ -1551,8 +1558,14 @@ trait HtmlView
                 <body id="top" data-theme="light">
                     <main id="app">
                         {$header}
-                        {$breadcrumb}
-                        <section class="content" id="view">{$content}  {$debug} </section>
+                        <section class="container-fluid py-3 pb-1">
+                            <div class="row">
+                                <div class="col-md-12">{$breadcrumb}</div>
+                            </div>
+                        </section>
+                        <section class="container-fluid">
+                            {$content}
+                        </section>
                         {$footer}
                     </main>
                     {$scripts}
@@ -1574,7 +1587,7 @@ trait HtmlView
         // Obtener información del directorio
         $scanDir = $this->getDirInfo($dir);
         // Inicializar variable para el HTML generado
-        $html = '<div class="options">';
+        $html = '<div class="btn-group">';
 
         // Comprobamos que no estamos en root y añadimos el boton volver y los demas botones
         $urlCreateFolder = $url . '?create=dir&where=' . base64_encode($dir);
@@ -1588,18 +1601,18 @@ trait HtmlView
         if ($inRoot) {
             $backToUrl = $url . '?get=dir&name=' . base64_encode(dirname($dir));
             $urlDeleteFolder = $url . '?delete=dir&where=' . base64_encode($dir);
-            $html .= '<a class="btn" href="' . $backToUrl . '" title="Volver">' . $this->icon('back') . '</a>';
+            $html .= '<a class="btn btn-secondary" href="' . $backToUrl . '" title="Volver">' . $this->icon('back') . '</a>';
             $html .= '<a class="btn btn-danger" href="' . $urlDeleteFolder . '" title="Borrar carpeta">' . $this->icon('trash') . '</a>';
         }
 
         // Generamos los botones según si estamos en root o no
-        $html .= '<a class="btn" href="' . $urlUploadFile . '" title="Subir archivo">' . $this->icon('upload') . '</a>';
-        $html .= '<a class="btn" href="' . $urlCreateFolder . '" title="Crear carpeta">' . $this->icon('folder') . '</a>';
-        $html .= '<a class="btn" href="' . $urlCreateFile . '" title="Crear archivo">' . $this->icon('plus') . '</a>';
+        $html .= '<a class="btn btn-dark" href="' . $urlUploadFile . '" title="Subir archivo">' . $this->icon('upload') . '</a>';
+        $html .= '<a class="btn btn-dark" href="' . $urlCreateFolder . '" title="Crear carpeta">' . $this->icon('folder') . '</a>';
+        $html .= '<a class="btn btn-dark" href="' . $urlCreateFile . '" title="Crear archivo">' . $this->icon('plus') . '</a>';
 
         $html .= '</div>';
         // Agregar contenedor para mostrar los archivos/directorios
-        $html .= '<div class="files">';
+        $html .= '<div class="row gy-3 gx-1 my-1">';
         // Si hay archivos/directorios en el directorio, mostrarlos
         $html .= (count($scanDir) > 0) ? "" : "No hay ningún archivo en esta carpeta.";
         foreach ($scanDir as $item) {
@@ -1617,36 +1630,26 @@ trait HtmlView
 
             // Agregar enlace al archivo/directorio
             $html .= <<<HTML
-                <a href="{$url}/?get={$filetype}&name={$filepath}">
-                    <div class="file">
-                        <div class="file-body">{$icon}</div>
-                        <div class="file-footer"><span>{$filename}</span></div>
-                    </div>
-                </a>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    <a class="text-decoration-none file" href="{$url}/?get={$filetype}&name={$filepath}">
+                        <div class="card rounded-0">
+                            <div class="card-body p-2 py-3 bg-light position-relative">
+                                {$icon}
+                            </div>
+                            <div class="card-footer bg-dark text-light text-truncate rounded-0"><span>{$filename}</span></div>
+                        </div>
+                    </a>
+                </div>
             HTML;
         }
 
         // Cerrar contenedor
         $html .= '</div>';
-        // Estilos CSS para la vista
-        $css = <<<CSS
-            .files{display:grid;grid-template-columns:repeat(8,1fr);grid-column-gap:5px;grid-row-gap:5px}
-            @media (max-width:1200px){.files{grid-template-columns:repeat(8,1fr)}}
-            @media (max-width:1024px){.files{grid-template-columns:repeat(6,1fr)}}
-            @media (max-width:767px){.files{grid-template-columns:repeat(4,1fr)}}
-            @media (max-width:600px){.files{grid-template-columns:repeat(2,1fr)}}
-            .files a{text-decoration:none}
-            .file{background:var(--light-500);border:1px solid var(--light-300)}
-            .file-body{display:flex;justify-content:center;align-items:center;background:var(--light-600)}
-            .file-body svg{display:block;width:48px;height:48px;margin:10px;fill:var(--dark-300)}
-            .file-footer{text-align:center;padding:5px;background:var(--dark-100);color:var(--light-100)}
-            .file-footer span{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100px;margin:auto}
-            body[data-theme=dark] .file{background:var(--dark-200);border:1px solid var(--dark-200)}
-            body[data-theme=dark] .file-body{background:var(--dark-200)}
-            body[data-theme=dark] .file-body svg{fill:var(--dark-600)}
-        CSS;
+        // Detalles del servidor
+        $serverDetails = $this->getWebServerDetails();
+        $html .= '<div class="server-details">' . $serverDetails . '</div>';
         // Generamos la plantilla por defecto
-        return $this->generateLayout($html, $css, '', $dir);
+        return $this->generateLayout($html, '.card-body svg{width:50px;height:50px;margin:auto;display:flex;fill:var(--bs-dark);}.file{transition: all 500ms ease;}.file:hover,.file:focus{opacity:0.8;transition: all 500ms ease;}', '', $dir);
     }
 
     /**
@@ -1673,7 +1676,7 @@ trait HtmlView
         // Comprobamos que no estamos en root y añadimos el boton volver
         if (array_key_exists('get', $_GET)) {
             $backToUrl = $url . '?get=dir&name=' . base64_encode(dirname($dir));
-            $html .= '<a class="btn" href="' . $backToUrl . '" title="Volver">' . $this->icon('back') . '</a>';
+            $html .= '<a class="btn btn-sm btn-dark mb-2" href="' . $backToUrl . '" title="Volver">' . $this->icon('back') . '</a>';
         }
         // Generar el contenido según el tipo de archivo
         $content = "";
@@ -1683,16 +1686,18 @@ trait HtmlView
         // Generar el contenido según el tipo de archivo
         list("isValid" => $isValid, "extType" => $extType) = $this->checkExtension($extension);
 
-        $url = str_replace($this->getOption('root_file'), '', $url);
-        $src = $url . str_replace(ROOT, '', $dir);
+        // Si en la url hay un 'root.php' o un 'gallery.php' lo quitamos
+        $removeBasename = str_replace(basename($this->getOption('Site_url')),'',$this->getOption('Site_url'));
+        $src = $removeBasename . str_replace(ROOT, '', $dir);
 
         $download = '';
         $openExternal = '';
         $contentMap = [
-            'isImage' => '<figure style="height:auto"><img lazy src="' . $src . '"/></figure>',
-            'isVideo' => '<figure class="responsive"><video lazy controls src="' . $src . '" style="aspect-ratio:16/9"/></figure>',
-            'isEditable' => '<textarea name="editor">' . $this->sanitizeFileContents($dir) . '</textarea>',
-            'nonEditable' => '<div class="iframe"><iframe lazy src="' . $src . '"></iframe></div>',
+            'isAudio' => '<figure class="bg-dark text-light p-0 m-0 d-flex justify-content-center align-items-center h-100"><audio loading=lazy controls src="' . $src . '"/></figure>',
+            'isImage' => '<figure class="bg-dark p-0 m-0 h-100 d-flex justify-content-center align-items-center"><img loading=lazy src="' . $src . '"/></figure>',
+            'isVideo' => '<figure class="p-0 m-0 ratio ratio-16x9 bg-dark"><video loading=lazy controls src="' . $src . '" style="aspect-ratio:16/9"/></figure>',
+            'isEditable' => '<textarea name="editor" id="editor">' . $this->sanitizeFileContents($dir) . '</textarea>',
+            'nonEditable' => '<div class="ratio ratio-1x1"><iframe loading=lazy src="' . $src . '"></iframe></div>',
         ];
 
         // Imprime el icono depende del tipo en los archivos no editables
@@ -1701,76 +1706,128 @@ trait HtmlView
         // Comprueba el tipo de extension y enseña el contenido
         if (array_key_exists($extType, $contentMap)) {
             // Comprobamos si la extension es pdf, editable, si es imagen y si es video
-            $content = ($extension == 'pdf' || $extType == 'isEditable' || $extType == 'isImage' || $extType == 'isVideo') ? $contentMap[$extType] : '<div class="no-preview">' . $icon . '</div>';
+            $content = ($extension == 'pdf' || $extType == 'isEditable' || $extType == 'isImage' || $extType == 'isVideo' || $extType == 'isAudio') ? $contentMap[$extType] : '<div class="no-preview bg-dark h-100 d-flex justify-content-center align-items-center">' . $icon . '</div>';
             // Comprobamos si los permisos del archivo son 666 o 644 si es no editable, si es imagen o si es video
-            $download = ($extType == 'nonEditable' || $extType == 'isImage' || $extType == 'isVideo') ? true : false;
+            $download = ($extType == 'nonEditable' || $extType == 'isImage' || $extType == 'isVideo' || $extType == 'isAudio') ? true : false;
             // Comprobamos si no tiene los permisos 666 o 644 si es editable, si es imagen o si es video
-            $openExternal = ($extType == 'isEditable' || $extType == 'isImage' || $extType == 'isVideo') ? true : false;
+            $openExternal = ($extType == 'isEditable' || $extType == 'isImage' || $extType == 'isVideo' || $extType == 'isAudio') ? true : false;
         } else {
-            $content = '<div class="no-preview">' . $icon . '</div>';
+            $content = '<div class="no-preview bg-dark h-100 d-flex justify-content-center align-items-center">' . $icon . '</div>';
         }
 
         // Download files
-        $downloadTpl = ($download) ? '<a class="btn btn-dark" href="' . $this->parseUrl($src) . '" download title="Descargar">' . $this->icon('download') . '</a>' : '';
-        $openExternalTpl = ($openExternal) ? '<a class="btn btn-yellow" rel="noopener" target="_blank" href="' . $this->parseUrl($src) . '" title="Abrir en ventana externa">' . $this->icon('external') . '</a>' : '';
+        $downloadTpl = ($download) ? '<a class="btn btn-sm btn-dark" href="' . $this->parseUrl($src) . '" download title="Descargar">' . $this->icon('download') . '</a>' : '';
+        $openExternalTpl = ($openExternal) ? '<a class="btn btn-sm btn-primary" rel="noopener" target="_blank" href="' . $this->parseUrl($src) . '" title="Abrir en ventana externa">' . $this->icon('external') . '</a>' : '';
 
         // Crear variable para mensaje de confirmación común
         $confirmMessage = "Va a renombrar el archivo {$filename}, ¿está seguro?";
         // Crear variable para HTML común en la sección "Renombrar"
         $renameHtml = <<<HTML
+        <li class="list-group-item">
             <details>
                 <summary>Renombrar</summary>
-                <div class="details-body">
+                <div class="details-body py-2">
                     <input type="hidden" name="oldRenameDir" value="{$dir}"/>
                     <input type="hidden" name="oldRenameFile" value="{$filename}.{$extension}"/>
-                    <input type="text" name="newRenameFile" value="{$filename}"/>
-                    <input type="submit" class="btn btn-blue" onclick="return confirm('{$confirmMessage}')" name="rename" value="Renombrar"/>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="newRenameFile" value="{$filename}"/>
+                        <input type="submit" class="btn btn-sm btn-primary" onclick="return confirm('{$confirmMessage}')" name="rename" value="Renombrar"/>
+                    </div>
                 </div>
             </details>
+        </li>
         HTML;
         $folderDir = dirname(str_replace(ROOT . '/', '', $dir));
         $confirmMessageMoveFiles = "Va a mover el archivo {$filename}.{$extension}, ¿está seguro?";
         // Crear una variable para HTML común en la seccion "Mover archivos"
         $moveFilesHtml = <<<HTML
+        <li class="list-group-item">
             <details>
                 <summary>Mover archivos</summary>
-                <div class="details-body">
+                <div class="details-body py-2">
                     <input type="hidden" name="old" value="{$folderDir}"/>
                     <input type="hidden" name="filename" value="{$filename}.{$extension}"/>
-                    <input type="text" name="new" value="{$folderDir}"/>
-                    <input type="submit" class="btn btn-blue" onclick="return confirm('{$confirmMessage}')" name="move" value="Mover archivo"/>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="new" value="{$folderDir}"/>
+                        <input type="submit" class="btn btn-sm btn-primary" onclick="return confirm('{$confirmMessage}')" name="move" value="Mover archivo"/>
+                    </div>
                 </div>
             </details>
+        </li>
+        HTML;
+        // Mensaje para descomprimir
+        $confirmMessageUnzipFiles = "Va a descomprimir el archivo {$filename}.{$extension}, ¿está seguro?";
+        $unZipFiles = <<<HTML
+            <li class="list-group-item">
+                <details open>
+                    <summary>Descomprimir archivos</summary>
+                    <div class="details-body py-2">
+                        <input type="hidden" name="oldDirFile" value="{$folderDir}"/>
+                        <input type="hidden" name="fileZipname" value="{$filename}.{$extension}"/>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="newDirFile" value="{$folderDir}"/>
+                            <input type="submit" class="btn btn-sm btn-primary" onclick="return confirm('{$confirmMessageUnzipFiles}')" name="unzip" value="Descomprimir archivos"/>
+                        </div>
+                    </div>
+                </details>
+            </li>
         HTML;
 
         if ($extType == 'isImage' || $extType == 'isVideo' || $extType == 'nonEditable') {
             $buttons = $renameHtml . $moveFilesHtml . <<<HTML
-                <div class="divider"></div>
+            <li class="list-group-item">
                 <details class="danger">
                     <summary>Borrar</summary>
-                    <div class="details-body">
+                    <div class="details-body py-2">
                         <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
+                        <input type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
                     </div>
                 </details>
+            </li>
+            HTML;
+        }
+        
+        if ($extType == 'nonEditable' && $extension == 'zip') {
+            $buttons = $unZipFiles . $renameHtml . $moveFilesHtml . <<<HTML
+            <li class="list-group-item">
+                <details>
+                    <summary>Actualizar</summary>
+                    <div class="details-body py-2">
+                        <input type="hidden" name="file" value="{$dir}"/>
+                        <input type="submit" class="btn btn-sm btn-primary" name="update" value="Actualizar"/>
+                    </div>
+                </details>
+            </li>
+            <li class="list-group-item">
+                <details class="danger">
+                    <summary>Borrar</summary>
+                    <div class="details-body py-2">
+                        <input type="hidden" name="file" value="{$dir}"/>
+                        <input type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
+                    </div>
+                </details>
+            </li>
             HTML;
         } else {
             $buttons = $renameHtml . $moveFilesHtml . <<<HTML
+            <li class="list-group-item">
                 <details>
                     <summary>Actualizar</summary>
-                    <div class="details-body">
+                    <div class="details-body py-2">
                         <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-blue" name="update" value="Actualizar"/>
+                        <input type="submit" class="btn btn-sm btn-primary" name="update" value="Actualizar"/>
                     </div>
                 </details>
-                <div class="divider"></div>
+            </li>
+            <li class="list-group-item">
                 <details class="danger">
                     <summary>Borrar</summary>
-                    <div class="details-body">
+                    <div class="details-body py-2">
                         <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
+                        <input type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
                     </div>
                 </details>
+            </li>
             HTML;
         }
         // Agregamos las funciones de renombrar,editar y borrar
@@ -1779,77 +1836,74 @@ trait HtmlView
         // Generar el HTML completo para la vista de edición
         $html .= <<<HTML
             <form method="post" style="height:100%">
-                <section class="file">
-                    <section class="preview">
+                <section class="row">
+                    <section class="col-md-8">
                         {$content}
                     </section>
-                    <aside class="sidebar">
-                        <ul>
-                            <li><strong>Nombre: </strong> {$filename}</li>
-                            <li><strong>Extensión: </strong> {$extension}</li>
-                            <li><strong>Permisos: </strong> {$fileperms}</li>
-                            <li><strong>Tamaño: </strong>{$filesize}</li>
-                            <li><strong>Fecha mod. : </strong>{$filedate}</li>
-                            {$buttons}
-                            <div class="group-btn">
-                                {$downloadTpl}
-                                {$openExternalTpl}
+                    <aside class="col-md-4">
+                        <div class="card rounded-0">
+                            <div class="card-header bg-light text-dark rounded-0">
+                                <h5 class="card-title m-0">Opciones</h5>
                             </div>
-                        </ul>
+                            <div class="card-body p-1 mb-2">
+                                <ul class="list-group rounded-0 m-0">
+                                    <li class="list-group-item"><strong>Nombre: </strong> {$filename}</li>
+                                    <li class="list-group-item"><strong>Extensión: </strong> {$extension}</li>
+                                    <li class="list-group-item"><strong>Permisos: </strong> {$fileperms}</li>
+                                    <li class="list-group-item"><strong>Tamaño: </strong>{$filesize}</li>
+                                    <li class="list-group-item"><strong>Fecha mod. : </strong>{$filedate}</li>
+                                    {$buttons}
+                                </ul>
+                            </div>
+                            <div class="card-footer">
+                                <div class="btn-group">
+                                    {$downloadTpl}
+                                    {$openExternalTpl}
+                                </div>
+                            </div>
+                        </div>
                     </aside>
                 </section>
             </form>
         HTML;
         // Generar el CSS necesario para la vista de edición
-        $css = <<<CSS
-            pre.preview-code{display:flex;justify-content:center;align-items:center;background:var(--dark-900);color:var(--dark-100)}
-            .divider{display:block;width:100%;height:1px;margin:10px 0;background:var(--dark-900)}
-            .sidebar {user-select:none;-webkit-user-select:none;}
-            .sidebar details{margin-top:5px;}
-            .sidebar details[open] summary~*{animation:open .3s ease-in-out}
-            @keyframes open{0%{opacity:0}100%{opacity:1}}
-            .sidebar details summary::-webkit-details-marker{display:none}
-            .sidebar details summary{width:100%;padding:3px 10px;background:var(--light-500);border-bottom:1px solid var(--dark-800);position:relative;cursor:pointer;list-style:none}
-            .sidebar details summary:after{content:"+";color:var(--dark-100);position:absolute;top:3px;right:10px;transform-origin:center;transition:.2s linear}
-            .sidebar details[open] summary:after{transform:rotate(45deg);color:var(--red-100)}
-            .sidebar details summary{outline:0}
-            .sidebar details .details-body{background:var(--dark-900);padding:5px}
-            .sidebar details.danger summary{background:var(--red-100);color:var(--light-100)}
-            .sidebar details.danger summary:after,details[open].danger summary:after{color:var(--light-100)}
-            .sidebar .group-btn {display: flex;justify-content: flex-start;}
-            .iframe{position:relative;width:100%;max-width:100%;height:100%}
-            .iframe iframe{border:none;position:absolute;top:0;left:0;width:100%;height:100%}
-            .file{display: flex;flex-direction: row;height: 100%;width: 100%;margin: 5px 0;justify-content: center;align-content: center;}
-            .sidebar{display:block;width:250px;background:var(--light-700);padding:10px}
-            .sidebar ul{margin:0;padding:0;list-style:none}
-            .sidebar li{color:var(--dark-500)}
-            .sidebar li strong{color:var(--dark-200)}
-            .preview{display:block;overflow:auto;width:calc(100% - 260px);height:100%;background:var(--dark-100)}
-            .preview textarea{white-space:nowrap;resize:none;width:100%;height:100%;min-height:500px;padding:10px;background:var(--dark-100);color:var(--light-100);border-color:var(--dark-100)}
-            .preview textarea:focus{border-color:var(--light-400);outline:0}
-            .preview textarea::-webkit-scrollbar{background:var(--dark-100);width:5px;height:5px}
-            .preview textarea::-webkit-scrollbar-thumb{background:var(--dark-600);border-radius:4px}
-            .preview textarea::-webkit-scrollbar-corner{background:var(--dark-100)}
-            .preview figure{display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;margin:0;padding:0;background: var(--dark-100);}
-            .no-preview{display:flex;justify-content:center;align-items:center;width:100%;height:100%;background:var(--red-500)}
-            .no-preview svg{width:90px;height:90px;margin: 30px auto;fill:var(--red-100)}
-            @media (max-width:767px){.file{flex-direction:column;width:100%;margin:0;}.no-preview,.preview,.sidebar,textarea{width:100%}}
-            body[data-theme=dark] .preview{background:var(--dark-100)}
-            body[data-theme=dark] .back{background:var(--dark-200);color:var(--light-100);border:1px solid var(--dark-100)}
-            body[data-theme=dark] .back svg,body[data-theme=dark] .btn-create svg{fill:var(--light-100)}
-            body[data-theme=dark] textarea{background:var(--dark-200);color:var(--light-100);border-color:var(--dark-100)}
-            body[data-theme=dark] aside.sidebar{background:var(--dark-200)}
-            body[data-theme=dark] .sidebar li{color:var(--light-100)}
-            body[data-theme=dark] .sidebar li strong{color:var(--dark-700)}
-            body[data-theme=dark] .sidebar details summary{background:var(--dark-100);border-bottom:1px solid var(--dark-300)}
-            body[data-theme=dark] .sidebar details.danger summary{background:var(--red-800);color:var(--red-100)}
-            body[data-theme=dark] .sidebar details.danger summary:after,body[data-theme=dark] details[open].danger summary:after{color:var(--red-100)}
-            body[data-theme=dark] .divider{background:var(--dark-300)}
-            body[data-theme=dark] .details-body{background:var(--dark-100)}
-            body[data-theme=dark] pre.preview-code{background:var(--dark-200);color:var(--light-100)}
-        CSS;
+        $css = ".CodeMirror{height: 100%;}.no-preview svg{width:80px;height:80px;fill:var(--bs-light)";
+        // Obtener el tipo de archivo
+        $mimeType = pathinfo($dir, PATHINFO_EXTENSION);
+        // Obtenemos depende del tipo el modo
+        $mode = "htmlmixed";
+        switch ($mimeType) {
+            case 'css':
+                $mode = "css";
+                break;
+            case 'scss':
+                $mode = "css";
+                break;
+            case 'js':
+                $mode = "javascript";
+                break;
+            case 'html':
+                $mode = "text/html";
+            case 'php':
+                $mode = "application/x-httpd-php";
+                break;
+            case 'json':
+                $mode = "javascript";
+            case 'md':
+                $mode = "markdown";
+                break;
+        }
+        $js = <<<JAVASCRIPT
+            document.addEventListener('DOMContentLoaded',() => {
+                const EDITOR = CodeMirror.fromTextArea(document.getElementById("editor"), {
+                    theme: "material-darker",
+                    lineNumbers: true
+                });
+                EDITOR.setOption('mode','{$mode}');
+            },false);
+        JAVASCRIPT;
         $cadena = $currentFolder;
-        return $this->generateLayout($html, $css, '', $cadena);
+        return $this->generateLayout($html, $css, $js, $cadena);
     }
 
     /**
@@ -1861,7 +1915,7 @@ trait HtmlView
     {
         // url base
         $url = $this->getOption('Site_url');
-        // Obtener la ruta de la carpeta actual
+        // Remplazamos ROOT por la url actual 
         $currentFolder = str_replace(ROOT, '', $dir);
         $currentFolder = str_replace('//', '/', $currentFolder);
         $currentFolder = $currentFolder ? $currentFolder : '/';
@@ -1870,22 +1924,23 @@ trait HtmlView
         $this->uploadFiles($dir);
         // Creamos el html
         $html = <<<HTML
-            <h3> Subir archivo en {$currentFolder}</h3>
-            <section class="form">
-                <form method="POST" enctype="multipart/form-data">
-                    <input type="file" name="files[]" multiple directory="false" required>
-                    <input type="submit" class="btn" value="Subir archivo">
-                    <a class="btn btn-danger" href="{$back}">Volver</a>
-                </form>
+            <section class="row">
+                <div class="col-md-5">
+                    <h3> Subir archivos en <span class="badge bg-dark">{$currentFolder}</span></h3>
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <input type="file" class="form-control" name="files[]" multiple directory="false" required>
+                        </div>
+                        <div class="btn-group">
+                            <input type="submit" class="btn btn-dark" value="Subir archivo">
+                            <a class="btn btn-danger" href="{$back}">Volver</a>
+                        </div>
+                    </form>
+                </div>
             </section>
         HTML;
-        // Creamos el css
-        $css = <<<CSS
-            h3{margin:0;}
-            input[type=file]{display:block;margin:10px 0;}
-       CSS;
         // Generamos la plantilla
-        return $this->generateLayout($html, $css, '', $dir);
+        return $this->generateLayout($html, '', '', $dir);
     }
 
     /**
@@ -1899,7 +1954,7 @@ trait HtmlView
     {
         // url base
         $url = $this->getOption('Site_url');
-        // Obtener la ruta de la carpeta actual
+        // Remplazamos Root por al url actual
         $currentFolder = str_replace(ROOT, '', $dir);
         $currentFolder = str_replace('//', '/', $currentFolder);
         $currentFolder = $currentFolder ? $currentFolder : '/';
@@ -1909,22 +1964,23 @@ trait HtmlView
         $this->createDirFunctions($type, $dir);
         // Creamos el html
         $html = <<<HTML
-            <h3> Crear {$name} en {$currentFolder}</h3>
-            <section class="form">
+        <section class="row">
+            <div class="col-md-6">
+                <h3> Crear <strong class="text-primary">{$name}</strong> en <span class="badge bg-dark">{$currentFolder}</span></h3>
                 <form method="POST">
-                    <input type="text" name="name" placeholder="Nombre {$name}" required>
-                    <input type="submit" class="btn" name="create" value="Crear">
-                    <a class="btn btn-danger" href="{$back}">Volver</a>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="name" placeholder="Nombre {$name}" required>
+                    </div>
+                    <div class="btn-group">
+                        <input type="submit" class="btn btn-dark" name="create" value="Crear">
+                        <a class="btn btn-danger" href="{$back}">Volver</a>
+                    </div>
                 </form>
-            </section>
+            </div>
+        </section>
         HTML;
-        // Creamos el css
-        $css = <<<CSS
-            h3 { margin: 0; }
-            input[type=file]{display:block;margin:10px 0;}
-        CSS;
         // Generamos la plantilla
-        return $this->generateLayout($html, $css, '', $dir);
+        return $this->generateLayout($html, '', '', $dir);
     }
     /**
      * Creamos la vista de borrado de directorios
@@ -1944,23 +2000,22 @@ trait HtmlView
         $this->removeDirFunctions($dir);
         // Creamos el html
         $html = <<<HTML
-            <h3> Borrar {$currentFolder}</h3>
-            <p> Se va a proceder al borrado de la carpeta {$currentFolder} </p>
-            <section class="form">
+        <section class="row">
+            <div class="col-md-5">
+                <h3> Borrar carpeta</h3>
+                <p> Se va a proceder al borrado de la carpeta <span class="badge bg-dark">{$currentFolder}</span> </p>
                 <form method="POST">
                     <input type="hidden" name="dir" value="{$dir}">
-                    <input type="submit" class="btn" name="delete" value="Borrar">
-                    <a class="btn" href="{$url}" title="Volver al inicio">Volver</a>
+                    <div class="btn-group">
+                        <input type="submit" class="btn btn-dark" name="delete" value="Borrar">
+                        <a class="btn btn-danger" href="{$url}" title="Volver al inicio">Volver</a>
+                    </div>
                 </form>
-            </section>
+            </div>
+        </section>
         HTML;
-        // Creamos el css
-        $css = <<<CSS
-            h3,p,input{ margin: 5px; }
-            input[type=file]{display:block;margin:10px 0;}
-        CSS;
         // Generamos la plantilla
-        return $this->generateLayout($html, $css, '', $dir);
+        return $this->generateLayout($html, '', '', $dir);
     }
 
     /**
@@ -1973,6 +2028,9 @@ trait HtmlView
     {
         // url base
         $url = $this->getOption('Site_url');
+        // title
+        $title = $this->getOption('title');
+        $logo = $this->getOption('logo');
         // Captcha
         $captcha = $this->tokenCaptcha(6, '123456790');
         // Token
@@ -1983,40 +2041,118 @@ trait HtmlView
         $this->loginAuthFunctions($token);
         // html
         $html = <<<HTML
-            <form method="post">
-                <input type="hidden" name="_captcha" value="{$captcha}"/>
-                <input type="hidden" name="_hash" value="{$client_hash}"/>
-                <label for="password">Contraseña</label>
-                <input type="password" name="password" placeholder="**********" autocomplete="current-password" required>
-                <label for="catpcha">Escriba el numero {$captcha} </label>
-                <input type="number" name="captcha" title="captcha" required>
-                <input type="submit" class="btn btn-blue" name="loginAuth" value="Entrar"/>
-            </form>
+            <div class="row">
+                <div class="col-md-4 m-auto">
+                    <div class="card">
+                        <div class="card-header bg-primary text-light">
+                            <img class="rounded-pill" src="{$logo}" alt="logo">
+                            <span>{$title}</span>
+                        </div>
+                        <form method="post">
+                            <input type="hidden" name="_captcha" value="{$captcha}"/>
+                            <input type="hidden" name="_hash" value="{$client_hash}"/>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" name="password" placeholder="**********" autocomplete="current-password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="catpcha" class="form-label">Escriba el numero {$captcha} </label>
+                                    <input type="number" class="form-control" name="captcha" title="captcha" required>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <input type="submit" class="btn btn-sm btn-primary" name="loginAuth" value="Entrar"/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         HTML;
         // css
-        $css = <<<CSS
-            form { display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: flex-start; margin: 10px; }
-        CSS;
+        $css = '';
         // generamos el layout
         return $this->generateLayout($html, $css, '', $dir);
     }
+
+    /**
+     * Creamos la vista de generar password
+     *
+     * @return void
+     */
+    public function generatePasswordView(): void
+    {
+        // Obtenemos la URL del sitio utilizando la opción 'Site_url'
+        $url = $this->getOption('Site_url');
+
+        // Generamos la salida necesaria para la vista
+        $output = $this->generatePasswordFunctions();
+
+        // Creamos un bloque de HTML utilizando la sintaxis HEREDOC
+        $html = <<<HTML
+            <section class="row">
+                <div class="col-md-5">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Generar contraseña</label>
+                            <input class="form-control" name="pass" placeholder="demo123" required/>
+                        </div>
+                        <div class="mb-3">
+                            <input type="submit" class="btn btn-dark" name="generate" value="Generar"/>
+                            <a class="btn btn-danger" href="{$url}">Volver</a>
+                        </div>
+                    </form>
+                    <div class="output">
+                        <pre class="bg-dark text-light p-2" style="user-select:all;">{$output}</pre>
+                    </div>
+                </div>
+            </section>
+        HTML;
+
+        // Imprimimos el bloque de HTML en la pantalla utilizando la función generateLayout
+        echo $this->generateLayout($html, '', '', ROOT);
+    }
+
 }
 
 /**
-* Trait FormsFunctions
-* Este trait proporciona funciones para los formularios de los views.
-*
+ * Trait FormsFunctions
+ * Este trait proporciona funciones para los formularios de los views.
+ *
  * loginAuthFunctions: Funcion de login.
  * removeDirFunctions: Borrar carpeta.
  * createDirFunctions: Crea un archivo o una carpeta en un directorio específico.
  * uploadFiles: Subir archivos.
  * runEditViewFunctions: Funciones para la vista editar.
- * 
+ *
  * @package MediaManager
-* @category Trait
-*/
+ * @category Trait
+ */
 trait FormsFunctions
 {
+
+    /**
+     * Funcion para generar password
+     *
+     * @return string
+     */
+    public function generatePasswordFunctions(): string
+    {
+        // Inicializamos la variable de salida
+        $output = '';
+
+        // Verificamos si el botón 'generate' fue presionado en el formulario
+        if (array_key_exists('generate', $_POST)) {
+            // Obtenemos la contraseña ingresada por el usuario en el campo 'pass'
+            $output = $this->getPost('pass');
+
+            // Generamos el hash de la contraseña utilizando el algoritmo PASSWORD_DEFAULT
+            $output = password_hash($output, PASSWORD_DEFAULT);
+        }
+
+        // Devolvemos la contraseña generada (o una cadena vacía si el formulario no ha sido enviado)
+        return $output;
+    }
 
     /**
      * Funcion de login
@@ -2242,6 +2378,17 @@ trait FormsFunctions
             // Llamamos a la funcion moveFiles
             $this->moveFiles($filename, $old, $new);
         }
+        // Llamamos a la funcion descomprimir
+        if(array_key_exists('unzip', $_POST)) { // Verifica si el botón 'unzip' ha sido presionado en el formulario POST
+            $filename = $this->getPost('file'); // Obtiene el nombre del archivo a descomprimir desde el formulario POST
+            $newFileDir = ROOT.'/'.$this->getPost('newDirFile'); // Obtiene la ubicación donde se creará la carpeta para almacenar el contenido del archivo descomprimido
+            $outputDir  = pathinfo($filename, PATHINFO_FILENAME); // Obtiene el nombre del archivo sin la extensión
+            $outputPath  = $newFileDir.'/'.$this->cleanName($outputDir); // Establece la ruta donde se almacenará el contenido del archivo descomprimido
+            if(!is_dir($outputPath)){ // Verifica si la carpeta de destino no existe
+                mkdir($outputPath, 0777, true); // Crea la carpeta de destino recursivamente con permisos de lectura, escritura y ejecución para todos los usuarios
+                $this->unzip($filename,$outputPath); // Descomprime el archivo en la carpeta de destino
+            }
+        }
     }
 }
 
@@ -2270,13 +2417,14 @@ class MediaManager
 
     // config vars
     public static $defaultConfig = [
-        'root_file' => 'root.php',
         'Site_url' => 'http://localhost/root.php',
-        'password' => 'admin123', // password_hash(sha1(md5('demo')), PASSWORD_BCRYPT);
+        'password' => '$2y$10$n5xO5I4XTPt.WZaSGI0x5OEZQoDoBU2dDYrAq8yLXBsb512KfnP2G', // default password demo123;
         'title' => 'App name',
         'logo' => '',
+        'exclude' => ['root', '.gitignore', '.git', 'node_modules', '.htaccess', 'temp', '_temp_files'],
         'imageSupport' => ["ico", "jpg", "jpeg", "png", "gif", "svg", "bmp", "webp"],
         'videoSupport' => ["mp4", "webm", "ogg", "mov", "avi", "wmv", "flv", "m4v", "mkv", "mpeg", "mpg", "3gp"],
+        'audioSupport' => ["wav", "mp3", "ogg", "m4a"],
         'editableFilesSupport' => ['env', 'less', 'scss', 'jsx', 'ts', 'tsx', 'json', 'sql', 'manifest', 'txt', 'md', 'html', 'htm', 'xml', 'css', 'js', 'php', 'c', 'cpp', 'h', 'hpp', 'py', 'rb', 'java', 'sh', 'pl'],
         'nonEditableFilesSupport' => ["ttf", "otf", "woff", "woff2", "docx", "xlsx", "pptx", "accdb", "pub", "vsd", "doc", "xls", "ppt", "mdb", 'mo', 'po', 'db', 'pdf', 'zip'],
     ];
@@ -2321,11 +2469,6 @@ class MediaManager
             // Si la clave no existe, retorna null
             return null;
         }
-    }
-
-    public function api()
-    {
-        // crear api
     }
 
     /**
@@ -2392,6 +2535,14 @@ class MediaManager
                 // Error, el nombre de la carpeta no existe
                 $this->error('Error, el nombre de la carpeta no existe');
             }
+        } elseif (array_key_exists('generar', $_GET)) {
+            // Obtenemos el nombre de la carpeta
+            if ($this->get('generar') == 'password') {
+                $this->generatePasswordView();
+            } else {
+                // Error, el nombre de la carpeta no existe
+                $this->error('Error, el nombre de la carpeta no existe');
+            }
         } else {
             // Mostramos la vista por defecto del directorio raíz
             echo $this->defaultView(ROOT);
@@ -2401,6 +2552,49 @@ class MediaManager
         if (array_key_exists('logout', $_GET)) {
             $this->logout();
             $this->redirect($this->getOption('Site_url'));
+        }
+    }
+
+    /**
+     * Api simple
+     *
+     * @return void
+     */
+    public function api()
+    {
+        if (array_key_exists('api', $_GET)) {
+            // Imprime en formato Json
+            @header('content-type: application/json');
+            $data = [];
+            // Obtenemos los directorios
+            if ($this->get('api') == 'd') {
+                // Comprobamos si existe name
+                if (array_key_exists('name', $_GET)) {
+                    // Decodificamos el enlace
+                    $filename = base64_decode($this->get('name'));
+                    // Generar el contenido según el tipo de archivo
+                    $data['status'] = true;
+                    $data['data'] = $this->getDirInfo($filename);
+                } else {
+                    $data['status'] = true;
+                    $data['data'] = $this->getDirInfo(ROOT);
+                }
+            } elseif ($this->get('api') == 'f') {
+                // Comprobamos si existe name
+                if (array_key_exists('name', $_GET)) {
+                    // Decodificamos el enlace
+                    $filename = base64_decode($this->get('name'));
+                    // Generar el contenido según el tipo de archivo
+                    $data['status'] = true;
+                    $data['getpwuid'] = function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($filename)) : '';
+                    $data['getgrgid'] = function_exists('posix_getgrgid') ? posix_getgrgid(filegroup($filename)) : '';
+                    $data['data'] = $this->getFileInfo($filename);
+                }
+            }
+            // Imprimimos en Json.
+            $output = json_encode($data, JSON_PRETTY_PRINT, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
+            print($output);
+            exit();
         }
     }
 
@@ -2421,11 +2615,11 @@ class MediaManager
 }
 
 $MediaManager = new MediaManager([
-    'root_file' => 'root.php',
     'Site_url' => 'http://localhost/root.php',
-    'password' => '', // password_hash(sha1(md5('demo')), PASSWORD_BCRYPT)
+    'password' => '$2y$10$n5xO5I4XTPt.WZaSGI0x5OEZQoDoBU2dDYrAq8yLXBsb512KfnP2G',
     'title' => 'Root App',
     'logo' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAjpJREFUWEftlcsrRFEcx3/TlCahSFkgyqORKQszyiOFjTw2SikLOxsrZSNqUiYbZeUPsFBKzUZkg5RHcSzUlMmjCAslCjHJNPqd8buOa849584jG7/Vveeec76f8/3+TtdRGxyOwR+W4x9Ax4HxkZOkQpqZr1Gu04qAAAYu1pUb4oSlik4+Ly0AJD54uQrRqNPYXEaCkE5nFBbLu7UglA6YTz9d1AD++32ArFyYyvNwEf9TCOD9GaYKG2Hy7oCP6bpgG0Arg0wB0KlUEBhD2h1A0fOXB5U2/16ZU2DMUzWiVgQkjNl31eUZm68dP/Fn8xj2AoGkDYA3no0iiOWFZstVSgf6h3ZhpdoFbG8LvE1tPzbDMaxE4zjWexqBlABC3bO/BBhj8TGv9ycMY4B/NZ8wToCe1TGpC5YOEIB4ykPGYLTVATuv9dwV+taSfQRz2zHw+eJg9A2fUwOIPAK48qVWyyLgC77WJg2Ae4gu2OhBY6qVOE5SNmEiCHfp91UUocLX8WtJpRJPCkAmTqIiRMYAuAjmK5YrHxAu4wCWfZCVy/+KaY9A1owUhzl71dUTD6HVhLQg1OPnj+6SYgjf3AK8ffD3WLYTaopLDPt1sqc9bQFwJzomwF1VljCJ8NkVeDYCtm5rUgDcBRMEinPrMwngChwB2wxantDb3geRiXptF7QdQHEsHQCcpwuhBUDidgB0IZQAorjoq9kJtD5RqZywBJCJkxBByMRpnhWEFEAlLsahArCK488BPgGWqTzwXrlG8gAAAABJRU5ErkJgggAA',
+    'exclude' => ['root.php', '.gitignore', '.git', 'node_modules', '.htaccess', 'temp', '_temp_files'],
 ]);
 
 // Iniciamos la aplicación
