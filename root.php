@@ -9,7 +9,24 @@ declare (strict_types = 1);
 
 define('ROOT', str_replace(DIRECTORY_SEPARATOR, '/', getcwd()));
 define('DEBUG', true);
-setlocale(LC_ALL, 'es_ES.UTF-8');
+define('ROOT_MINIMUM_PHP', '7.4.0');
+
+// Dar formato a la fecha
+setlocale(LC_ALL, "es_ES", 'Spanish_Spain', 'Spanish');
+
+// Cabeceras de seguridad
+header("X-Powered-By: Moncho Varela :)");
+header('Strict-Transport-Security: max-age=31536000');
+header("Content-Security-Policy: img-src  'self' data:; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'");
+header('X-Frame-Options: SAMEORIGIN');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: no-referrer-when-downgrade');
+header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+
+if (version_compare($ver = PHP_VERSION, $req = ROOT_MINIMUM_PHP, '<')) {
+    $out = sprintf('Usted esta usando PHP %s, pero AntCMs necesita <strong>PHP %s</strong> para funcionar.', $ver, $req);
+    exit($out);
+}
 
 // Si DEBUG es true enseñamos los errores
 if (DEBUG == true) {
@@ -368,7 +385,7 @@ trait Auth
         // Si hay 3 o más intentos, bloquear el acceso
         if ($intentos >= 3) {
             // Insertar una cookie de bloqueo de usuario durante 5 segundos
-            setcookie('usuario_bloqueado', (string)true, time() + 5);
+            setcookie('usuario_bloqueado', (string)true, time() + 5, "/", "", true, true);
             // Reiniciar el contador de intentos de acceso
             $this->sessionSet('intentos_acceso', 0);
             // Redirigir al usuario a la página principal
@@ -656,7 +673,6 @@ trait Icons
 trait Utils
 {
 
-
     /**
      * Descomprime un archivo ZIP.
      *
@@ -867,25 +883,27 @@ trait Utils
     }
 
     /**
-     * La función parseUrl() toma una URL como entrada y devuelve una nueva URL
-     * sin diagonales invertidas dobles en su ruta.
+     * Quitamos todo lo que sea locahost:8080/[nombre].php  y lo dejamos en localhost:8080
      *
      * @param string $url La URL de entrada que se analizará y se modificará.
      * @return string La nueva URL sin diagonales invertidas dobles en su ruta.
      */
     public function parseUrl(string $url): string
     {
-        // Dividir la URL en sus diferentes partes utilizando la función parse_url()
-        $parts = parse_url($url);
-
-        // Reemplazar cualquier diagonal invertida doble en la ruta de la URL utilizando la función str_replace()
-        $path = str_replace("//", "/", $parts["path"]);
-        // Comprobamos si existe el puerto
-        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
-        // Reconstruir la URL utilizando las partes originales y la nueva ruta sin diagonales invertidas dobles
-        $newUrl = $parts["scheme"] . "://" . $parts["host"] . $port . $path;
-        // Devolver la nueva URL resultante
-        return $newUrl;
+        // Obtenemos el nombre de host sin / al final
+        $host = rtrim($_SERVER['HTTP_HOST'], '\\/');
+        // Comprobamos https o http
+        $https = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
+        // Combinamos el nombre de host y el número de puerto en la URL base
+        $baseUrl = $https . $host;
+        // Buscamos la posición de la URL base en la URL completa
+        $baseUrlPosition = strpos($url, $baseUrl);
+        // Si la URL base se encuentra, devolvemos solo la parte de la URL que se encuentra antes de la URL base
+        if ($baseUrlPosition !== false) {
+            return substr($url, 0, $baseUrlPosition + strlen($baseUrl));
+        }
+        // Si la URL base no se encuentra, devolvemos la URL completa sin cambios
+        return $url;
     }
 
     /**
@@ -1055,7 +1073,7 @@ trait Utils
         // Separamos las carpetas de la ruta
         $folders = explode('/', str_replace($root, '', $path));
         // Iniciamos el breadcrumb con el enlace a la carpeta raíz
-        $breadcrumb = '<nav aria-label="breacrumb"><ol class="breadcrumb rounded-0"><li class="breadcrumb-item active" aria-current="page"><a class="text-decoration-none text-black" href="' . $this->getOption('Site_url') . '">Inicio</a></li>';
+        $breadcrumb = '<nav aria-label="breacrumb"><ol class="breadcrumb"><li class="breadcrumb-item active" aria-current="page"><a class="text-decoration-none text-black" href="' . $this->getOption('Site_url') . '">Inicio</a></li>';
         // Creamos los enlaces a cada carpeta
         $route = '';
         foreach ($folders as $folder) {
@@ -1139,7 +1157,7 @@ trait Utils
         $txt = preg_replace("/-{2,}/", "-", $txt); // Elimina guiones duplicados
         // Asegurarse de que la cadena no sea demasiado larga
         $max_length = 50;
-        if(strlen($txt) > $max_length) {
+        if (strlen($txt) > $max_length) {
             $txt = substr($txt, 0, $max_length);
         }
         return $txt;
@@ -1396,7 +1414,7 @@ trait HtmlView
 
         $links = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" />';
         // Si estamos en la vista de edicion cargamos CodeMirror
-        if(array_key_exists('get',$_GET) && $this->get('get') == 'file') {
+        if (array_key_exists('get', $_GET) && $this->get('get') == 'file') {
             $links .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" />';
             $links .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/material-darker.min.css" integrity="sha512-2OhXH4Il3n2tHKwLLSDPhrkgnLBC+6lHGGQzSFi3chgVB6DJ/v6+nbx+XYO9CugQyHVF/8D/0k3Hx1eaUK2K9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />';
         }
@@ -1412,7 +1430,7 @@ trait HtmlView
                 <meta name="referrer" content="no-referrer-when-downgrade">
                 <meta name="robots" content="noindex,nofollow">
                 {$links}
-                <style rel="stylesheet">input,.btn{border-radius:0!important;}img{max-width:100%;}.btn svg{width:22px;height:22px;fill:var(--bs-dark);display:flex;justify-content:center;align-items:center;margin:0;padding:3px}.btn-primary svg,.btn-dark svg,.btn-danger svg,.btn-secondary svg{fill:var(--bs-light)}</style>
+                <style rel="stylesheet">img{max-width:100%;}.btn svg{width:22px;height:22px;fill:var(--bs-dark);display:flex;justify-content:center;align-items:center;margin:0;padding:3px}.btn-primary svg,.btn-dark svg,.btn-danger svg,.btn-secondary svg{fill:var(--bs-light)}</style>
                 <style rel="stylesheet">{$otherCss}</style>
             </head>
         HTML;
@@ -1434,7 +1452,7 @@ trait HtmlView
         $urlGeneratePass = ($this->isLogin()) ? '<a class="nav-link" href="' . $url . '?generar=password">Generar</a>' : '';
         return <<<HTML
             <header class="header">
-                <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                     <div class="container-fluid">
                         <a class="navbar-brand" href="{$url}">
                             <img class="rounded-pill" src="{$logo}" alt="logo">
@@ -1486,11 +1504,12 @@ trait HtmlView
      */
     public function generateScripts(string $js): string
     {
+
         // imprimimos la session
         $session = $this->msgGet('msg');
         $scripts = '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>';
         // Si estamos en la vista de edicion cargamos CodeMirror
-        if(array_key_exists('get',$_GET) && $this->get('get') == 'file') {
+        if (array_key_exists('get', $_GET) && $this->get('get') == 'file') {
             $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
             $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/markdown/markdown.js" integrity="sha512-HO6T6BeQvqVauqK9yn7/pkoiaaowmxIbN0Q15kjsM/8oJJ3seJI0/DlEqlEosGrpNkhPowUkV9hvrVtB+rqoDw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
             $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/htmlmixed/htmlmixed.min.js" integrity="sha512-HN6cn6mIWeFJFwRN9yetDAMSh+AK9myHF1X9GlSlKmThaat65342Yw8wL7ITuaJnPioG0SYG09gy0qd5+s777w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
@@ -1601,7 +1620,7 @@ trait HtmlView
         if ($inRoot) {
             $backToUrl = $url . '?get=dir&name=' . base64_encode(dirname($dir));
             $urlDeleteFolder = $url . '?delete=dir&where=' . base64_encode($dir);
-            $html .= '<a class="btn btn-secondary" href="' . $backToUrl . '" title="Volver">' . $this->icon('back') . '</a>';
+            $html .= '<a class="btn btn-primary" href="' . $backToUrl . '" title="Volver">' . $this->icon('back') . '</a>';
             $html .= '<a class="btn btn-danger" href="' . $urlDeleteFolder . '" title="Borrar carpeta">' . $this->icon('trash') . '</a>';
         }
 
@@ -1632,11 +1651,11 @@ trait HtmlView
             $html .= <<<HTML
                 <div class="col-6 col-sm-4 col-md-3 col-lg-2">
                     <a class="text-decoration-none file" href="{$url}/?get={$filetype}&name={$filepath}">
-                        <div class="card rounded-0">
-                            <div class="card-body p-2 py-3 bg-light position-relative">
+                        <div class="card border-light shadow">
+                            <div class="card-body p-2 py-3 bg-white position-relative">
                                 {$icon}
                             </div>
-                            <div class="card-footer bg-dark text-light text-truncate rounded-0"><span>{$filename}</span></div>
+                            <div class="card-footer bg-dark text-light text-truncate"><span>{$filename}</span></div>
                         </div>
                     </a>
                 </div>
@@ -1687,8 +1706,7 @@ trait HtmlView
         list("isValid" => $isValid, "extType" => $extType) = $this->checkExtension($extension);
 
         // Si en la url hay un 'root.php' o un 'gallery.php' lo quitamos
-        $removeBasename = str_replace(basename($this->getOption('Site_url')),'',$this->getOption('Site_url'));
-        $src = $removeBasename . str_replace(ROOT, '', $dir);
+        $src = $this->parseUrl($this->getOption('Site_url')) . str_replace(ROOT, '', $dir);
 
         $download = '';
         $openExternal = '';
@@ -1716,8 +1734,8 @@ trait HtmlView
         }
 
         // Download files
-        $downloadTpl = ($download) ? '<a class="btn btn-sm btn-dark" href="' . $this->parseUrl($src) . '" download title="Descargar">' . $this->icon('download') . '</a>' : '';
-        $openExternalTpl = ($openExternal) ? '<a class="btn btn-sm btn-primary" rel="noopener" target="_blank" href="' . $this->parseUrl($src) . '" title="Abrir en ventana externa">' . $this->icon('external') . '</a>' : '';
+        $downloadTpl = ($download) ? '<a class="btn btn-sm btn-dark" href="' . $src . '" download title="Descargar">' . $this->icon('download') . '</a>' : '';
+        $openExternalTpl = ($openExternal) ? '<a class="btn btn-sm btn-primary" rel="noopener" target="_blank" href="' . $src . '" title="Abrir en ventana externa">' . $this->icon('external') . '</a>' : '';
 
         // Crear variable para mensaje de confirmación común
         $confirmMessage = "Va a renombrar el archivo {$filename}, ¿está seguro?";
@@ -1786,7 +1804,7 @@ trait HtmlView
             </li>
             HTML;
         }
-        
+
         if ($extType == 'nonEditable' && $extension == 'zip') {
             $buttons = $unZipFiles . $renameHtml . $moveFilesHtml . <<<HTML
             <li class="list-group-item">
@@ -1841,12 +1859,12 @@ trait HtmlView
                         {$content}
                     </section>
                     <aside class="col-md-4">
-                        <div class="card rounded-0">
-                            <div class="card-header bg-light text-dark rounded-0">
+                        <div class="card border-light shadow">
+                            <div class="card-header bg-dark text-light">
                                 <h5 class="card-title m-0">Opciones</h5>
                             </div>
                             <div class="card-body p-1 mb-2">
-                                <ul class="list-group rounded-0 m-0">
+                                <ul class="list-group m-0">
                                     <li class="list-group-item"><strong>Nombre: </strong> {$filename}</li>
                                     <li class="list-group-item"><strong>Extensión: </strong> {$extension}</li>
                                     <li class="list-group-item"><strong>Permisos: </strong> {$fileperms}</li>
@@ -1915,7 +1933,7 @@ trait HtmlView
     {
         // url base
         $url = $this->getOption('Site_url');
-        // Remplazamos ROOT por la url actual 
+        // Remplazamos ROOT por la url actual
         $currentFolder = str_replace(ROOT, '', $dir);
         $currentFolder = str_replace('//', '/', $currentFolder);
         $currentFolder = $currentFolder ? $currentFolder : '/';
@@ -2042,10 +2060,10 @@ trait HtmlView
         // html
         $html = <<<HTML
             <div class="row">
-                <div class="col-md-4 m-auto">
-                    <div class="card">
-                        <div class="card-header bg-primary text-light">
-                            <img class="rounded-pill" src="{$logo}" alt="logo">
+                <div class="col-12 col-sm-6 col-md-4 col-xl-4 col-xxl-4 m-auto">
+                    <div class="card shadow">
+                        <div class="card-header bg-dark text-light">
+                            <img class="rounded-pill me-2" src="{$logo}" alt="logo">
                             <span>{$title}</span>
                         </div>
                         <form method="post">
@@ -2063,6 +2081,7 @@ trait HtmlView
                             </div>
                             <div class="card-footer">
                                 <input type="submit" class="btn btn-sm btn-primary" name="loginAuth" value="Entrar"/>
+                                <a href="/" class="btn btn-sm btn-danger">Salir</a>
                             </div>
                         </form>
                     </div>
@@ -2097,13 +2116,13 @@ trait HtmlView
                             <label class="form-label">Generar contraseña</label>
                             <input class="form-control" name="pass" placeholder="demo123" required/>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 btn-group">
                             <input type="submit" class="btn btn-dark" name="generate" value="Generar"/>
                             <a class="btn btn-danger" href="{$url}">Volver</a>
                         </div>
                     </form>
                     <div class="output">
-                        <pre class="bg-dark text-light p-2" style="user-select:all;">{$output}</pre>
+                        <pre class="bg-dark text-light p-2 shadow rounded-1" style="user-select:all;">{$output}</pre>
                     </div>
                 </div>
             </section>
@@ -2151,7 +2170,7 @@ trait FormsFunctions
         }
 
         // Devolvemos la contraseña generada (o una cadena vacía si el formulario no ha sido enviado)
-        return $output;
+        return ($output) ? $output : 'Aquí se verá la contraseña 🚀';
     }
 
     /**
@@ -2379,14 +2398,16 @@ trait FormsFunctions
             $this->moveFiles($filename, $old, $new);
         }
         // Llamamos a la funcion descomprimir
-        if(array_key_exists('unzip', $_POST)) { // Verifica si el botón 'unzip' ha sido presionado en el formulario POST
+        if (array_key_exists('unzip', $_POST)) {
+            // Verifica si el botón 'unzip' ha sido presionado en el formulario POST
             $filename = $this->getPost('file'); // Obtiene el nombre del archivo a descomprimir desde el formulario POST
-            $newFileDir = ROOT.'/'.$this->getPost('newDirFile'); // Obtiene la ubicación donde se creará la carpeta para almacenar el contenido del archivo descomprimido
-            $outputDir  = pathinfo($filename, PATHINFO_FILENAME); // Obtiene el nombre del archivo sin la extensión
-            $outputPath  = $newFileDir.'/'.$this->cleanName($outputDir); // Establece la ruta donde se almacenará el contenido del archivo descomprimido
-            if(!is_dir($outputPath)){ // Verifica si la carpeta de destino no existe
+            $newFileDir = ROOT . '/' . $this->getPost('newDirFile'); // Obtiene la ubicación donde se creará la carpeta para almacenar el contenido del archivo descomprimido
+            $outputDir = pathinfo($filename, PATHINFO_FILENAME); // Obtiene el nombre del archivo sin la extensión
+            $outputPath = $newFileDir . '/' . $this->cleanName($outputDir); // Establece la ruta donde se almacenará el contenido del archivo descomprimido
+            if (!is_dir($outputPath)) {
+                // Verifica si la carpeta de destino no existe
                 mkdir($outputPath, 0777, true); // Crea la carpeta de destino recursivamente con permisos de lectura, escritura y ejecución para todos los usuarios
-                $this->unzip($filename,$outputPath); // Descomprime el archivo en la carpeta de destino
+                $this->unzip($filename, $outputPath); // Descomprime el archivo en la carpeta de destino
             }
         }
     }
@@ -2616,7 +2637,7 @@ class MediaManager
 
 $MediaManager = new MediaManager([
     'Site_url' => 'http://localhost/root.php',
-    'password' => '$2y$10$n5xO5I4XTPt.WZaSGI0x5OEZQoDoBU2dDYrAq8yLXBsb512KfnP2G',
+    'password' => '$2y$10$n5xO5I4XTPt.WZaSGI0x5OEZQoDoBU2dDYrAq8yLXBsb512KfnP2G',// demo123
     'title' => 'Root App',
     'logo' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAjpJREFUWEftlcsrRFEcx3/TlCahSFkgyqORKQszyiOFjTw2SikLOxsrZSNqUiYbZeUPsFBKzUZkg5RHcSzUlMmjCAslCjHJNPqd8buOa849584jG7/Vveeec76f8/3+TtdRGxyOwR+W4x9Ax4HxkZOkQpqZr1Gu04qAAAYu1pUb4oSlik4+Ly0AJD54uQrRqNPYXEaCkE5nFBbLu7UglA6YTz9d1AD++32ArFyYyvNwEf9TCOD9GaYKG2Hy7oCP6bpgG0Arg0wB0KlUEBhD2h1A0fOXB5U2/16ZU2DMUzWiVgQkjNl31eUZm68dP/Fn8xj2AoGkDYA3no0iiOWFZstVSgf6h3ZhpdoFbG8LvE1tPzbDMaxE4zjWexqBlABC3bO/BBhj8TGv9ycMY4B/NZ8wToCe1TGpC5YOEIB4ykPGYLTVATuv9dwV+taSfQRz2zHw+eJg9A2fUwOIPAK48qVWyyLgC77WJg2Ae4gu2OhBY6qVOE5SNmEiCHfp91UUocLX8WtJpRJPCkAmTqIiRMYAuAjmK5YrHxAu4wCWfZCVy/+KaY9A1owUhzl71dUTD6HVhLQg1OPnj+6SYgjf3AK8ffD3WLYTaopLDPt1sqc9bQFwJzomwF1VljCJ8NkVeDYCtm5rUgDcBRMEinPrMwngChwB2wxantDb3geRiXptF7QdQHEsHQCcpwuhBUDidgB0IZQAorjoq9kJtD5RqZywBJCJkxBByMRpnhWEFEAlLsahArCK488BPgGWqTzwXrlG8gAAAABJRU5ErkJgggAA',
     'exclude' => ['root.php', '.gitignore', '.git', 'node_modules', '.htaccess', 'temp', '_temp_files'],
