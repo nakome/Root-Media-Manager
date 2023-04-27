@@ -255,7 +255,7 @@ trait Token
      * @param int $length (opcional) La longitud del token generado (por defecto 32)
      * @return string $token - El token generado
      */
-    public function tokenGenerate($length = 32)
+    public function tokenGenerate($length = 32): string
     {
         // Verificar si la sesión ha sido iniciada
         if ($this->sessionStart()) {
@@ -397,7 +397,7 @@ trait Auth
             // Mostrar la plantilla de error de demasiados intentos
             die($this->toManyAttempts());
             // Salir del script
-            exit();
+            exit(0);
         } else {
 
             $password = trim($this->getPost('password', true));
@@ -547,6 +547,9 @@ trait Icons
     {
         // Definición de los diferentes iconos
         $icons = [
+            'open' => '<path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14V3.5zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5V6zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7H1.633z"/>',
+            'eye' => '<path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>',
+            'edit' => '<path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>',
             'home' => '<path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/>',
             'xml' => '<path d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM3.527 11.85h-.893l-.823 1.439h-.036L.943 11.85H.012l1.227 1.983L0 15.85h.861l.853-1.415h.035l.85 1.415h.908l-1.254-1.992 1.274-2.007Zm.954 3.999v-2.66h.038l.952 2.159h.516l.946-2.16h.038v2.661h.715V11.85h-.8l-1.14 2.596h-.025L4.58 11.85h-.806v3.999h.706Zm4.71-.674h1.696v.674H8.4V11.85h.791v3.325Z"/>',
             'folder' => '<path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/>',
@@ -645,6 +648,8 @@ trait Icons
 /**
  * Trait Utils
  * Este trait proporciona utilidades para la clase MediaManager.
+ * isLocalhost: Función que comprueba si la solicitud se está realizando desde un entorno localhost.
+ * getDesktopIp: Función para obtener la dirección IP local del equipo.
  * unzip: Descomprime un archivo ZIP.
  * getWebServerDetails: Devuelve una cadena de texto con los detalles del servidor web, incluyendo el software y la versión de PHP.
  * removeFile: Función para borrar archivos.
@@ -672,6 +677,40 @@ trait Icons
  */
 trait Utils
 {
+
+    /**
+     * Función para obtener la dirección IP local del equipo.
+     *
+     * @return string La dirección IP local del equipo.
+     */
+    public function getDesktopIp(): string
+    {
+        $localIP = "";
+        // Comprobar si la extensión de sockets está cargada en PHP.
+        if (extension_loaded('sockets')) {
+            // Crear un socket para obtener la dirección IP local del socket.
+            $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+            socket_connect($socket, '8.8.8.8', 53); // Conectar el socket a cualquier dirección IP externa y puerto.
+            socket_getsockname($socket, $localIP); // Obtener la dirección IP local del socket.
+            socket_close($socket); // Cerrar el socket.
+        }
+        // Devolver la dirección IP local del equipo.
+        return ($this->isLocalhost()) ? $localIP : "";
+    }
+
+    /**
+     * Función que comprueba si la solicitud se está realizando desde un entorno localhost.
+     * @return bool Devuelve true si la solicitud se realiza desde localhost, de lo contrario, false.
+     */
+    public function isLocalhost()
+    {
+        $is_localhost = false;
+        // Comprobar si la dirección IP comienza con "127.0.0." o si el host es "localhost"
+        if (strpos($_SERVER['REMOTE_ADDR'], '127.0.0.') === 0 || $_SERVER['HTTP_HOST'] === 'localhost') {
+            $is_localhost = true;
+        }
+        return ($is_localhost) ? true : false;
+    }
 
     /**
      * Descomprime un archivo ZIP.
@@ -1483,12 +1522,17 @@ trait HtmlView
     public function generateFooter(): string
     {
         $year = date('Y');
+        $ip = $this->getDesktopIp();
         return <<<HTML
             <footer class="footer mt-4 text-center">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-12">
-                            <p class="copyright">Moncho Varela © {$year}</p>
+                            <p class="copyright">
+                                <small>
+                                    Made with ♥ Moncho Varela © {$year} - <a href="http://{$ip}" target="_self" rel="noopener">{$ip}</a>
+                                </small>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1631,7 +1675,7 @@ trait HtmlView
 
         $html .= '</div>';
         // Agregar contenedor para mostrar los archivos/directorios
-        $html .= '<div class="row gy-3 gx-1 my-1">';
+        $html .= '<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 gy-3 gx-2 my-1">';
         // Si hay archivos/directorios en el directorio, mostrarlos
         $html .= (count($scanDir) > 0) ? "" : "No hay ningún archivo en esta carpeta.";
         foreach ($scanDir as $item) {
@@ -1641,23 +1685,32 @@ trait HtmlView
             $filetype = $item['filetype'];
             $fileext = $item['fileext'];
 
+            $openFolderIcon = $this->icon('open');
             $icon = $this->icon('folder');
             if ($filetype == 'file') {
                 list("isValid" => $isValid, "extType" => $extType) = $this->checkExtension($fileext);
                 $icon = $this->renderIconByType($extType, $fileext, $filetype);
+                $openFolderIcon = $this->icon('edit');
             }
+
+            // Si en la url hay un 'root.php' o un 'gallery.php' lo quitamos
+            $externalUrl = $this->parseUrl($this->getOption('Site_url')) . str_replace(ROOT, '', $item['filepath']);
 
             // Agregar enlace al archivo/directorio
             $html .= <<<HTML
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                    <a class="text-decoration-none file" href="{$url}/?get={$filetype}&name={$filepath}">
-                        <div class="card border-light shadow">
-                            <div class="card-body p-2 py-3 bg-white position-relative">
-                                {$icon}
-                            </div>
-                            <div class="card-footer bg-dark text-light text-truncate"><span>{$filename}</span></div>
+                <div class="col">
+                    <div class="card border-light shadow-sm">
+                        <div class="card-body p-2 py-3 bg-white position-relative">
+                            {$icon}
                         </div>
-                    </a>
+                        <div class="card-footer">
+                            <div class="float-start text-truncate" style="width:100px">{$filename}</div>    
+                            <div class="btn-group float-end">
+                                <a class="btn btn-sm btn-primary" href="{$externalUrl}">{$this->icon('external')}</a>
+                                <a class="btn btn-sm btn-dark" href="{$url}/?get={$filetype}&name={$filepath}">{$openFolderIcon}</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             HTML;
         }
