@@ -358,7 +358,7 @@ trait Auth
     public function isLogin(): bool
     {
         // Verificar si existen las claves necesarias en la sesión y si el hash de inicio de sesión coincide
-        if ($this->sessionGet('_ip') && $this->sessionGet('_time') && $this->login_hash == $this->sessionGet('_login_hash')) {
+        if ($this->sessionGet('_ip') && $this->sessionGet('_time') && $this->__login_hash == $this->sessionGet('_login_hash')) {
             return true;
         }
         return false;
@@ -404,8 +404,8 @@ trait Auth
             // Comprobar si la contraseña es correcta
             if ($hasher->verify($password, $this->getOption('password'))) {
                 // Insertar las variables de sesión correspondientes
-                $this->sessionSet('_login_hash', $this->login_hash); // Insertar el hash de inicio de sesión
-                $this->sessionSet('_ip', $this->ip); // Guardar la dirección IP del usuario
+                $this->sessionSet('_login_hash', $this->__login_hash); // Insertar el hash de inicio de sesión
+                $this->sessionSet('_ip', $this->__ip); // Guardar la dirección IP del usuario
                 $this->sessionSet('_time', date('m-d-Y h:m:s')); // Guardar la fecha y hora de inicio de sesión
                 $this->sessionSet('intentos_acceso', 0); // Reiniciar el contador de intentos de acceso
                 // Redirigir al usuario a la página principal
@@ -481,7 +481,7 @@ trait Msg
      * @param string $title El título del mensaje.
      * @param string $msg   El contenido del mensaje.
      */
-    public function msgSet($title, $msg)
+    public function msgSet(string $title = "", string $msg = "")
     {
         // Creamos un array con los datos del mensaje
         $data = array(
@@ -547,6 +547,7 @@ trait Icons
     {
         // Definición de los diferentes iconos
         $icons = [
+            'dot-vertical-menu' => '<path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>',
             'open' => '<path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14V3.5zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5V6zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7H1.633z"/>',
             'eye' => '<path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>',
             'edit' => '<path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>',
@@ -1018,16 +1019,7 @@ trait Utils
         $output = ($isFile) ? highlight_file($filename, true) : highlight_string('<?php' . PHP_EOL . $output . PHP_EOL . '?>', true);
 
         // Crea la salida HTML para la depuración.
-        $html = <<<HTML
-            <details class="debug" style="padding:0;margin:20px auto;">
-                <summary>Debug</summary>
-                    <div class="details-body ">
-                        <pre class="p-1 bg-light border">
-                            {$output}
-                        </pre>
-                    </div>
-            </details>
-        HTML;
+        $html = '<details class="debug" style="padding:0;margin:20px auto;"><summary>Debug</summary><div class="details-body "><pre class="p-1 bg-light border">'.$output.'</pre></div></details>';
 
         // Devuelve la salida HTML.
         return $html;
@@ -1048,7 +1040,7 @@ trait Utils
         // Validar y filtrar $_POST[$key]
         $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
         // Decodificar el valor de la variable si es necesario
-        $value = urldecode($value);
+        $value = $value ? urldecode($value) : "";
         // Codificar los caracteres especiales en entidades HTML
         $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
         // Eliminar los espacios en blanco al inicio y al final del valor
@@ -1451,28 +1443,15 @@ trait HtmlView
     {
         $title = $this->getOption('title'); // Título del sitio web
 
-        $links = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" />';
+        $links = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/'.$this->getOption('theme').'/bootstrap.min.css" />';
         // Si estamos en la vista de edicion cargamos CodeMirror
         if (array_key_exists('get', $_GET) && $this->get('get') == 'file') {
             $links .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" />';
             $links .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/material-darker.min.css" integrity="sha512-2OhXH4Il3n2tHKwLLSDPhrkgnLBC+6lHGGQzSFi3chgVB6DJ/v6+nbx+XYO9CugQyHVF/8D/0k3Hx1eaUK2K9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />';
         }
         // Retornar la sección head del HTML
-        return <<<HTML
-            <head>
-                <meta charset="utf-8"><title>{$title}</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <meta name="application-name" content="AntCMS" />
-                <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-                <meta http-equiv="Pragma" content="no-cache">
-                <meta http-equiv="Expires" content="0">
-                <meta name="referrer" content="no-referrer-when-downgrade">
-                <meta name="robots" content="noindex,nofollow">
-                {$links}
-                <style rel="stylesheet">img{max-width:100%;}.btn svg{width:22px;height:22px;fill:var(--bs-dark);display:flex;justify-content:center;align-items:center;margin:0;padding:3px}.btn-primary svg,.btn-dark svg,.btn-danger svg,.btn-secondary svg{fill:var(--bs-light)}</style>
-                <style rel="stylesheet">{$otherCss}</style>
-            </head>
-        HTML;
+        return '<head><meta charset="utf-8"><title>' . $title . '</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="application-name" content="'.$this->getOption('title').'" /><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><meta name="referrer" content="no-referrer-when-downgrade"><meta name="robots" content="noindex,nofollow">' . $links . '<style rel="stylesheet">img{max-width:100%;}.btn svg{width:22px;height:22px;fill:var(--bs-dark);display:flex;justify-content:center;align-items:center;margin:0;padding:3px}.btn-primary svg,.btn-dark svg,.btn-danger svg,.btn-secondary svg{fill:var(--bs-light)}</style><style rel="stylesheet">' . $otherCss . '</style></head>';
+
     }
 
     /**
@@ -1489,29 +1468,7 @@ trait HtmlView
     {
         $urlHome = ($this->isLogin()) ? '<a class="nav-link" href="' . $url . '">Inicio</a>' : '';
         $urlGeneratePass = ($this->isLogin()) ? '<a class="nav-link" href="' . $url . '?generar=password">Generar</a>' : '';
-        return <<<HTML
-            <header class="header">
-                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <div class="container-fluid">
-                        <a class="navbar-brand" href="{$url}">
-                            <img class="rounded-pill" src="{$logo}" alt="logo">
-                            <span>{$title}</span>
-                        </a>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                            <div class="navbar-nav ms-auto mb-2 mb-lg-0">
-                                {$urlHome}
-                                {$urlGeneratePass}
-                                {$logoutTpl}
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-            </header>
-        HTML;
-
+        return '<header class="header"><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container-fluid"><a class="navbar-brand" href="' . $url . '"><img class="rounded-pill" src="' . $logo . '" alt="logo"><span>' . $title . '</span></a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNavAltMarkup"><div class="navbar-nav ms-auto mb-2 mb-lg-0">' . $urlHome . $urlGeneratePass . $logoutTpl . '</div></div></div></nav></header>';
     }
 
     /**
@@ -1523,21 +1480,7 @@ trait HtmlView
     {
         $year = date('Y');
         $ip = $this->getDesktopIp();
-        return <<<HTML
-            <footer class="footer mt-4 text-center">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <p class="copyright">
-                                <small>
-                                    Made with ♥ Moncho Varela © {$year} - <a href="http://{$ip}" target="_self" rel="noopener">{$ip}</a>
-                                </small>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        HTML;
+        return '<footer class="footer mt-4 text-center"><div class="container-fluid"><div class="row"><div class="col-md-12"><p class="copyright"><small>Made with ♥ Moncho Varela © ' .$year . ' - <a href="http://' . $ip . '" target="_self" rel="noopener">' . $ip . '</a></small></p></div></div></div></footer>';
     }
 
     /**
@@ -1563,22 +1506,8 @@ trait HtmlView
             $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js" integrity="sha512-LarNmzVokUmcA7aUDtqZ6oTS+YXmUKzpGdm8DxC46A6AHu+PQiYCUlwEGWidjVYMo/QXZMFMIadZtrkfApYp/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
             $scripts .= '<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/clike/clike.min.js" integrity="sha512-l8ZIWnQ3XHPRG3MQ8+hT1OffRSTrFwrph1j1oc1Fzc9UKVGef5XN9fdO0vm3nW0PRgQ9LJgck6ciG59m69rvfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
         }
-        $scripts .= '<script rel="javascript">
-                function message(title,msg){
-                    const html =  `<div class="toast show fixed-top m-2" role="alert" aria-live="assertive" aria-atomic="true" id="msg-notification">
-                        <div class="toast-header">
-                            <span class="bg-primary p-1 rounded-pill mx-2" style="width:5px;height:5px;"></span>
-                            <strong class="me-auto">${title}</strong>
-                        </div>
-                        <div class="toast-body">${msg}</div>
-                    </div>`;
-                    document.body.innerHTML += html;
-                    let w = setTimeout(() => {
-                        document.getElementById("msg-notification").remove();
-                        clearTimeout(w);
-                    },2000);
-                }
-            </script>';
+        $scripts .= '<script rel="javascript">function message(title,msg){const html=`<div class="toast show fixed-top m-2" role="alert" aria-live="assertive" aria-atomic="true" id="msg-notification"><div class="toast-header"><span class="bg-primary p-1 rounded-pill mx-2" style="width:5px;height:5px;"></span><strong class="me-auto">${title}</strong></div><div class="toast-body">${msg}</div></div>`;document.body.innerHTML+=html;let w=setTimeout(()=>{document.getElementById("msg-notification").remove();clearTimeout(w);},2000);}</script>';
+
         $scripts .= '<script rel="javascript">' . $js . '</script>';
         $scripts .= $session;
         return $scripts;
@@ -1614,27 +1543,7 @@ trait HtmlView
         // Llamamos a la función generateScripts
         $scripts = $this->generateScripts($js);
         // plantilla html
-        return <<<HTML
-            <!Doctype html>
-            <html lang="es">
-                {$head}
-                <body id="top" data-theme="light">
-                    <main id="app">
-                        {$header}
-                        <section class="container-fluid py-3 pb-1">
-                            <div class="row">
-                                <div class="col-md-12">{$breadcrumb}</div>
-                            </div>
-                        </section>
-                        <section class="container-fluid">
-                            {$content}
-                        </section>
-                        {$footer}
-                    </main>
-                    {$scripts}
-                </body>
-            </html>
-        HTML;
+        return '<!Doctype html><html lang="es">'.$head.'<body id="top" data-theme="light"><main id="app">'.$header.'<section class="container-fluid py-3 pb-1"><div class="row"><div class="col-md-12">'.$breadcrumb.'</div></div></section><section class="container-fluid">'.$content.'</section>'.$footer.'</main>'.$scripts.'</body></html>';
     }
 
     /**
@@ -1696,23 +1605,15 @@ trait HtmlView
             // Si en la url hay un 'root.php' o un 'gallery.php' lo quitamos
             $externalUrl = $this->parseUrl($this->getOption('Site_url')) . str_replace(ROOT, '', $item['filepath']);
 
+            // Tipo de archivo
+            $typeOfFile = ($filetype == 'file') ? 'archivo' : 'carpeta';
+            $editTypeOfFile = ($filetype == 'file') ? "Editar {$typeOfFile}" : "Abrir {$typeOfFile}";
+            
+            // Dropdown opciones
+            $dropdown = '<div class="vert-menu btn-group position-absolute top-0 end-0"><button type="button" class="btn btn-white btn-sm rounded-0" data-bs-toggle="dropdown" aria-expanded="false">' . $this->icon('dot-vertical-menu') . '</button><ul class="dropdown-menu"><li><a class="dropdown-item" target="_blank" rel="noopener" href="' . $externalUrl . '">Abrir enlace</a></li><li><a class="dropdown-item" href="' . $url . '/?get=' . $filetype . '&name=' . $filepath . '">' . $editTypeOfFile . '</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="' . $url . '/?delete=' . $filetype . '&where=' . $filepath . '">Borrar ' . $typeOfFile . '</a></li></ul></div>';
+
             // Agregar enlace al archivo/directorio
-            $html .= <<<HTML
-                <div class="col">
-                    <div class="card border-light shadow-sm">
-                        <div class="card-body p-2 py-3 bg-white position-relative">
-                            {$icon}
-                        </div>
-                        <div class="card-footer">
-                            <div class="float-start text-truncate" style="width:100px">{$filename}</div>    
-                            <div class="btn-group float-end">
-                                <a class="btn btn-sm btn-primary" href="{$externalUrl}">{$this->icon('external')}</a>
-                                <a class="btn btn-sm btn-dark" href="{$url}/?get={$filetype}&name={$filepath}">{$openFolderIcon}</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            HTML;
+            $html .= '<div class="col"><div class="card border-light shadow-sm"><div class="card-body p-2 py-3 bg-white position-relative"><a class="card-link" href="' . $url . '/?get=' . $filetype . '&name=' . $filepath . '">' . $icon . '</a>' . $dropdown . '</div><div class="card-footer bg-dark text-light"><div class="float-start text-truncate" style="width:200px">' . $filename . '</div></div></div></div>';
         }
 
         // Cerrar contenedor
@@ -1721,7 +1622,7 @@ trait HtmlView
         $serverDetails = $this->getWebServerDetails();
         $html .= '<div class="server-details">' . $serverDetails . '</div>';
         // Generamos la plantilla por defecto
-        return $this->generateLayout($html, '.card-body svg{width:50px;height:50px;margin:auto;display:flex;fill:var(--bs-dark);}.file{transition: all 500ms ease;}.file:hover,.file:focus{opacity:0.8;transition: all 500ms ease;}', '', $dir);
+        return $this->generateLayout($html, '.card-link:is(:hover,:focus){opacity:.5;transition:all 500ms ease;}.card-body svg{width:50px;height:50px;margin:auto;display:flex;fill:var(--bs-dark);}.vert-menu svg{width:1.2rem;height:1.2rem}.file{transition: all 500ms ease;}.file:hover,.file:focus{opacity:0.8;transition: all 500ms ease;}', '', $dir);
     }
 
     /**
@@ -1793,150 +1694,34 @@ trait HtmlView
         // Crear variable para mensaje de confirmación común
         $confirmMessage = "Va a renombrar el archivo {$filename}, ¿está seguro?";
         // Crear variable para HTML común en la sección "Renombrar"
-        $renameHtml = <<<HTML
-        <li class="list-group-item">
-            <details>
-                <summary>Renombrar</summary>
-                <div class="details-body py-2">
-                    <input type="hidden" name="oldRenameDir" value="{$dir}"/>
-                    <input type="hidden" name="oldRenameFile" value="{$filename}.{$extension}"/>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="newRenameFile" value="{$filename}"/>
-                        <input type="submit" class="btn btn-sm btn-primary" onclick="return confirm('{$confirmMessage}')" name="rename" value="Renombrar"/>
-                    </div>
-                </div>
-            </details>
-        </li>
-        HTML;
+        $renameHtml = '<li class="list-group-item"><details><summary>Renombrar</summary><div class="details-body py-2"><input type="hidden" name="oldRenameDir" value="' . $dir . '"/><input type="hidden" name="oldRenameFile" value="' . $filename . '.' . $extension . '"/><div class="input-group mb-3"><input type="text" class="form-control" name="newRenameFile" value="' . $filename . '"/><input type="submit" class="btn btn-sm btn-primary" onclick="return confirm(\'' . $confirmMessage . '\')" name="rename" value="Renombrar"/></div></div></details></li>';
+
         $folderDir = dirname(str_replace(ROOT . '/', '', $dir));
         $confirmMessageMoveFiles = "Va a mover el archivo {$filename}.{$extension}, ¿está seguro?";
         // Crear una variable para HTML común en la seccion "Mover archivos"
-        $moveFilesHtml = <<<HTML
-        <li class="list-group-item">
-            <details>
-                <summary>Mover archivos</summary>
-                <div class="details-body py-2">
-                    <input type="hidden" name="old" value="{$folderDir}"/>
-                    <input type="hidden" name="filename" value="{$filename}.{$extension}"/>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="new" value="{$folderDir}"/>
-                        <input type="submit" class="btn btn-sm btn-primary" onclick="return confirm('{$confirmMessage}')" name="move" value="Mover archivo"/>
-                    </div>
-                </div>
-            </details>
-        </li>
-        HTML;
+        $moveFilesHtml = '<li class="list-group-item"><details><summary>Mover archivos</summary><div class="details-body py-2"><input type="hidden" name="old" value="' . $folderDir . '"/><input type="hidden" name="filename" value="' . $filename . '.' . $extension . '"/><div class="input-group mb-3"><input type="text" class="form-control" name="new" value="' . $folderDir . '"/><input type="submit" class="btn btn-sm btn-primary" onclick="return confirm(\'' . $confirmMessage . '\')" name="move" value="Mover archivo"/></div></div></details></li>';
+
         // Mensaje para descomprimir
         $confirmMessageUnzipFiles = "Va a descomprimir el archivo {$filename}.{$extension}, ¿está seguro?";
-        $unZipFiles = <<<HTML
-            <li class="list-group-item">
-                <details open>
-                    <summary>Descomprimir archivos</summary>
-                    <div class="details-body py-2">
-                        <input type="hidden" name="oldDirFile" value="{$folderDir}"/>
-                        <input type="hidden" name="fileZipname" value="{$filename}.{$extension}"/>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="newDirFile" value="{$folderDir}"/>
-                            <input type="submit" class="btn btn-sm btn-primary" onclick="return confirm('{$confirmMessageUnzipFiles}')" name="unzip" value="Descomprimir archivos"/>
-                        </div>
-                    </div>
-                </details>
-            </li>
-        HTML;
+        $unZipFiles = '<li class="list-group-item"><details open><summary>Descomprimir archivos</summary><div class="details-body py-2"><input type="hidden" name="oldDirFile" value="'.$folderDir.'"/><input type="hidden" name="fileZipname" value="'.$filename.'.'.$extension.'"/><div class="input-group mb-3"><input type="text" class="form-control" name="newDirFile" value="'.$folderDir.'"/><input type="submit" class="btn btn-sm btn-primary" onclick="return confirm(\''.$confirmMessageUnzipFiles.'\')" name="unzip" value="Descomprimir archivos"/></div></div></details></li>';
+
 
         if ($extType == 'isImage' || $extType == 'isVideo' || $extType == 'nonEditable') {
-            $buttons = $renameHtml . $moveFilesHtml . <<<HTML
-            <li class="list-group-item">
-                <details class="danger">
-                    <summary>Borrar</summary>
-                    <div class="details-body py-2">
-                        <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
-                    </div>
-                </details>
-            </li>
-            HTML;
+            $buttons = $renameHtml.$moveFilesHtml.'<li class="list-group-item"><details class="danger"><summary>Borrar</summary><div class="details-body py-2"><input type="hidden" name="file" value="'.$dir.'"/><input type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\''.$confirmMessage.'\')" name="delete" value="Borrar"/></div></details></li>';
+
         }
 
         if ($extType == 'nonEditable' && $extension == 'zip') {
-            $buttons = $unZipFiles . $renameHtml . $moveFilesHtml . <<<HTML
-            <li class="list-group-item">
-                <details>
-                    <summary>Actualizar</summary>
-                    <div class="details-body py-2">
-                        <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-sm btn-primary" name="update" value="Actualizar"/>
-                    </div>
-                </details>
-            </li>
-            <li class="list-group-item">
-                <details class="danger">
-                    <summary>Borrar</summary>
-                    <div class="details-body py-2">
-                        <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
-                    </div>
-                </details>
-            </li>
-            HTML;
+            $buttons = $unZipFiles . $renameHtml . $moveFilesHtml . '<li class="list-group-item"><details><summary>Actualizar</summary><div class="details-body py-2"><input type="hidden" name="file" value="{$dir}"/><input type="submit" class="btn btn-sm btn-primary" name="update" value="Actualizar"/></div></details></li><li class="list-group-item"><details class="danger"><summary>Borrar</summary><div class="details-body py-2"><input type="hidden" name="file" value="{$dir}"/><input type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'{$confirmMessage}\')" name="delete" value="Borrar"/></div></details></li>';
         } else {
-            $buttons = $renameHtml . $moveFilesHtml . <<<HTML
-            <li class="list-group-item">
-                <details>
-                    <summary>Actualizar</summary>
-                    <div class="details-body py-2">
-                        <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-sm btn-primary" name="update" value="Actualizar"/>
-                    </div>
-                </details>
-            </li>
-            <li class="list-group-item">
-                <details class="danger">
-                    <summary>Borrar</summary>
-                    <div class="details-body py-2">
-                        <input type="hidden" name="file" value="{$dir}"/>
-                        <input type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{$confirmMessage}')" name="delete" value="Borrar"/>
-                    </div>
-                </details>
-            </li>
-            HTML;
+            $buttons = $renameHtml . $moveFilesHtml . '<li class="list-group-item"><details><summary>Actualizar</summary><div class="details-body py-2"><input type="hidden" name="file" value="'.$dir.'"/><input type="submit" class="btn btn-sm btn-primary" name="update" value="Actualizar"/></div></details></li><li class="list-group-item"><details class="danger"><summary>Borrar</summary><div class="details-body py-2"><input type="hidden" name="file" value="'.$dir.'"/><input type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\''.$confirmMessage.'\')" name="delete" value="Borrar"/></div></details></li>';
         }
         // Agregamos las funciones de renombrar,editar y borrar
         $this->runEditViewFunctions();
 
         // Generar el HTML completo para la vista de edición
-        $html .= <<<HTML
-            <form method="post" style="height:100%">
-                <section class="row">
-                    <section class="col-md-8">
-                        {$content}
-                    </section>
-                    <aside class="col-md-4">
-                        <div class="card border-light shadow">
-                            <div class="card-header bg-dark text-light">
-                                <h5 class="card-title m-0">Opciones</h5>
-                            </div>
-                            <div class="card-body p-1 mb-2">
-                                <ul class="list-group m-0">
-                                    <li class="list-group-item"><strong>Nombre: </strong> {$filename}</li>
-                                    <li class="list-group-item"><strong>Extensión: </strong> {$extension}</li>
-                                    <li class="list-group-item"><strong>Permisos: </strong> {$fileperms}</li>
-                                    <li class="list-group-item"><strong>Tamaño: </strong>{$filesize}</li>
-                                    <li class="list-group-item"><strong>Fecha mod. : </strong>{$filedate}</li>
-                                    {$buttons}
-                                </ul>
-                            </div>
-                            <div class="card-footer">
-                                <div class="btn-group">
-                                    {$downloadTpl}
-                                    {$openExternalTpl}
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-                </section>
-            </form>
-        HTML;
+        $html .= '<form method="post" style="height:100%"><section class="row"><section class="col-md-8">' . $content . '</section><aside class="col-md-4"><div class="card border-light shadow"><div class="card-header bg-dark text-light"><h5 class="card-title m-0">Opciones</h5></div><div class="card-body p-1 mb-2"><ul class="list-group m-0"><li class="list-group-item"><strong>Nombre: </strong>' . $filename . '</li><li class="list-group-item"><strong>Extensión: </strong>' . $extension . '</li><li class="list-group-item"><strong>Permisos: </strong>' . $fileperms . '</li><li class="list-group-item"><strong>Tamaño: </strong>' . $filesize . '</li><li class="list-group-item"><strong>Fecha mod. : </strong>' . $filedate . '</li>' . $buttons . '</ul></div><div class="card-footer"><div class="btn-group">' . $downloadTpl . $openExternalTpl . '</div></div></div></aside></section></form>';
+
         // Generar el CSS necesario para la vista de edición
         $css = ".CodeMirror{height: 100%;}.no-preview svg{width:80px;height:80px;fill:var(--bs-light)";
         // Obtener el tipo de archivo
@@ -1964,15 +1749,7 @@ trait HtmlView
                 $mode = "markdown";
                 break;
         }
-        $js = <<<JAVASCRIPT
-            document.addEventListener('DOMContentLoaded',() => {
-                const EDITOR = CodeMirror.fromTextArea(document.getElementById("editor"), {
-                    theme: "material-darker",
-                    lineNumbers: true
-                });
-                EDITOR.setOption('mode','{$mode}');
-            },false);
-        JAVASCRIPT;
+        $js = 'document.addEventListener(\'DOMContentLoaded\',()=>{const EDITOR=CodeMirror.fromTextArea(document.getElementById("editor"),{theme:"material-darker",lineNumbers:true});EDITOR.setOption(\'mode\',\'' . $mode . '\');},false);';
         $cadena = $currentFolder;
         return $this->generateLayout($html, $css, $js, $cadena);
     }
@@ -1994,24 +1771,13 @@ trait HtmlView
         // Agregamos funciones
         $this->uploadFiles($dir);
         // Creamos el html
-        $html = <<<HTML
-            <section class="row">
-                <div class="col-md-5">
-                    <h3> Subir archivos en <span class="badge bg-dark">{$currentFolder}</span></h3>
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <input type="file" class="form-control" name="files[]" multiple directory="false" required>
-                        </div>
-                        <div class="btn-group">
-                            <input type="submit" class="btn btn-dark" value="Subir archivo">
-                            <a class="btn btn-danger" href="{$back}">Volver</a>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        HTML;
+        $html = '<section class="row"><div class="col-md-5"><h3> Subir archivos en <span class="badge bg-dark">' . $currentFolder . '</span></h3><form enctype="multipart/form-data" id="upload-form"><div class="mb-3"><input type="file" id="file-input" class="form-control" name="files[]" multiple directory="false" required accept="image/*,video/mp4,video/ogg,video/webm,audio/mp3,audio/wav,audio/ogg,audio/aac,.php,text/*,application/*"></div><div class="btn-group"><input type="submit" id="upload-button" class="btn btn-dark" value="Subir archivo"><a class="btn btn-danger" href="' . $back . '">Volver</a></div></form><div id="info"></div><div class="progress my-3 rounded-0" style="display:none"><div id="progress-bar" class="progress-bar bg-dark text-light" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div></section>';
+
+        $folderBase = base64_encode($dir);
+        $js = 'const form=document.getElementById("upload-form"),fileInput=document.getElementById("file-input"),uploadButton=document.getElementById("upload-button"),progressBar=document.getElementById("progress-bar"),info=document.getElementById("info");uploadButton.addEventListener("click",function(e){if(e.preventDefault(),fileInput.value){progressBar.parentElement.style.display="block";const t=new XMLHttpRequest,o=new FormData;for(let e=0;e<fileInput.files.length;e++)o.append("files[]",fileInput.files[e]);t.open("POST","?get=upload&name='.$folderBase.'"),t.upload.addEventListener("progress",function(e){const t=100*e.loaded/e.total;progressBar.style.width=t+"%",progressBar.innerText=t.toFixed(2)+"%"}),t.addEventListener("load",function(e){const t=t.responseText;info.innerHTML="<div class=\"alert alert-dark my-2 rounded-0\">"+t+"</div>";let o=setTimeout(()=>{fileInput.value="",progressBar.style.width="0%",progressBar.innerText="",progressBar.parentElement.style.display="none",info.innerText="",clearTimeout(o)},2e3)}),t.send(o)}});';
+
         // Generamos la plantilla
-        return $this->generateLayout($html, '', '', $dir);
+        return $this->generateLayout($html, '', $js, $dir);
     }
 
     /**
@@ -2034,22 +1800,8 @@ trait HtmlView
         // Agregamos las funciones
         $this->createDirFunctions($type, $dir);
         // Creamos el html
-        $html = <<<HTML
-        <section class="row">
-            <div class="col-md-6">
-                <h3> Crear <strong class="text-primary">{$name}</strong> en <span class="badge bg-dark">{$currentFolder}</span></h3>
-                <form method="POST">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="name" placeholder="Nombre {$name}" required>
-                    </div>
-                    <div class="btn-group">
-                        <input type="submit" class="btn btn-dark" name="create" value="Crear">
-                        <a class="btn btn-danger" href="{$back}">Volver</a>
-                    </div>
-                </form>
-            </div>
-        </section>
-        HTML;
+        $html = '<section class="row"><div class="col-md-6"><h3> Crear <strong class="text-primary">' . $name . '</strong> en <span class="badge bg-dark">' . $currentFolder . '</span></h3><form method="POST"><div class="mb-3"><input type="text" class="form-control" name="name" placeholder="Nombre ' . $name . '" required></div><div class="btn-group"><input type="submit" class="btn btn-dark" name="create" value="Crear"><a class="btn btn-danger" href="' . $back . '">Volver</a></div></form></div></section>';
+
         // Generamos la plantilla
         return $this->generateLayout($html, '', '', $dir);
     }
@@ -2063,6 +1815,8 @@ trait HtmlView
     {
         // url base
         $url = $this->getOption('Site_url');
+        // tipo de archivo
+        $typeOfFile = $this->get('delete');
         // Obtener la ruta de la carpeta actual
         $currentFolder = str_replace(ROOT, '', $dir);
         $currentFolder = str_replace('//', '/', $currentFolder);
@@ -2070,21 +1824,7 @@ trait HtmlView
         // Agregamos las funciones
         $this->removeDirFunctions($dir);
         // Creamos el html
-        $html = <<<HTML
-        <section class="row">
-            <div class="col-md-5">
-                <h3> Borrar carpeta</h3>
-                <p> Se va a proceder al borrado de la carpeta <span class="badge bg-dark">{$currentFolder}</span> </p>
-                <form method="POST">
-                    <input type="hidden" name="dir" value="{$dir}">
-                    <div class="btn-group">
-                        <input type="submit" class="btn btn-dark" name="delete" value="Borrar">
-                        <a class="btn btn-danger" href="{$url}" title="Volver al inicio">Volver</a>
-                    </div>
-                </form>
-            </div>
-        </section>
-        HTML;
+        $html = '<section class="row"><div class="col-md-5"><h3> Borrar carpeta</h3><p> Se va a proceder al borrado de la carpeta <span class="badge bg-dark">' . $currentFolder . '</span> </p><form method="POST"><input type="hidden" name="' . $typeOfFile . '" value="' . $dir . '"><div class="btn-group"><input type="submit" class="btn btn-dark" name="delete" value="Borrar"><a class="btn btn-danger" href="' . $url . '" title="Volver al inicio">Volver</a></div></form></div></section>';
         // Generamos la plantilla
         return $this->generateLayout($html, '', '', $dir);
     }
@@ -2107,40 +1847,11 @@ trait HtmlView
         // Token
         $token = $this->tokenGenerate();
         // client hash
-        $client_hash = $this->client_hash;
+        $client_hash = $this->__client_hash;
         // Funciones del login
         $this->loginAuthFunctions($token);
         // html
-        $html = <<<HTML
-            <div class="row">
-                <div class="col-12 col-sm-6 col-md-4 col-xl-4 col-xxl-4 m-auto">
-                    <div class="card shadow">
-                        <div class="card-header bg-dark text-light">
-                            <img class="rounded-pill me-2" src="{$logo}" alt="logo">
-                            <span>{$title}</span>
-                        </div>
-                        <form method="post">
-                            <input type="hidden" name="_captcha" value="{$captcha}"/>
-                            <input type="hidden" name="_hash" value="{$client_hash}"/>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">Contraseña</label>
-                                    <input type="password" class="form-control" name="password" placeholder="**********" autocomplete="current-password" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="catpcha" class="form-label">Escriba el numero {$captcha} </label>
-                                    <input type="number" class="form-control" name="captcha" title="captcha" required>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <input type="submit" class="btn btn-sm btn-primary" name="loginAuth" value="Entrar"/>
-                                <a href="/" class="btn btn-sm btn-danger">Salir</a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        HTML;
+        $html = '<div class="row"><div class="col-12 col-sm-6 col-md-4 col-xl-4 col-xxl-4 m-auto"><div class="card shadow"><div class="card-header bg-dark text-light"><img class="rounded-pill me-2" src="' . $logo . '" alt="logo"><span>' . $title . '</span></div><form method="post"><input type="hidden" name="_captcha" value="' . $captcha . '"/><input type="hidden" name="_hash" value="' . $client_hash . '"/><div class="card-body"><div class="mb-3"><label for="password" class="form-label">Contraseña</label><input type="password" class="form-control" name="password" placeholder="**********" autocomplete="current-password" required></div><div class="mb-3"><label for="catpcha" class="form-label">Escriba el numero ' . $captcha . ' </label><input type="number" class="form-control" name="captcha" title="captcha" required></div></div><div class="card-footer"><input type="submit" class="btn btn-sm btn-primary" name="loginAuth" value="Entrar"/><a href="/" class="btn btn-sm btn-danger">Salir</a></div></form></div></div></div>';
         // css
         $css = '';
         // generamos el layout
@@ -2161,25 +1872,7 @@ trait HtmlView
         $output = $this->generatePasswordFunctions();
 
         // Creamos un bloque de HTML utilizando la sintaxis HEREDOC
-        $html = <<<HTML
-            <section class="row">
-                <div class="col-md-5">
-                    <form method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Generar contraseña</label>
-                            <input class="form-control" name="pass" placeholder="demo123" required/>
-                        </div>
-                        <div class="mb-3 btn-group">
-                            <input type="submit" class="btn btn-dark" name="generate" value="Generar"/>
-                            <a class="btn btn-danger" href="{$url}">Volver</a>
-                        </div>
-                    </form>
-                    <div class="output">
-                        <pre class="bg-dark text-light p-2 shadow rounded-1" style="user-select:all;">{$output}</pre>
-                    </div>
-                </div>
-            </section>
-        HTML;
+        $html = '<section class="row"><div class="col-md-5"><form method="post"><div class="mb-3"><label class="form-label">Generar contraseña</label><input class="form-control" name="pass" placeholder="demo123" required/></div><div class="mb-3 btn-group"><input type="submit" class="btn btn-dark" name="generate" value="Generar"/><a class="btn btn-danger" href="' . $url . '">Volver</a></div></form><div class="output"><pre class="bg-dark text-light p-2 shadow rounded-1" style="user-select:all;">' . $output . '</pre></div></div></section>';
 
         // Imprimimos el bloque de HTML en la pantalla utilizando la función generateLayout
         echo $this->generateLayout($html, '', '', ROOT);
@@ -2242,7 +1935,7 @@ trait FormsFunctions
         // botton sign in
         if (array_key_exists('loginAuth', $_POST)) {
             // comprobamos token
-            if ($this->tokenCheck($token) && $this->client_hash == $this->getPost('_hash', false)) {
+            if ($this->tokenCheck($token) && $this->__client_hash == $this->getPost('_hash', false)) {
                 // comprobamos captcha
                 if ($this->getPost('captcha') == $this->getPost('_captcha', false)) {
                     return $this->login();
@@ -2267,15 +1960,26 @@ trait FormsFunctions
     {
         // Comprobamos create
         if (array_key_exists('delete', $_POST)) {
-            try {
-                $success = $this->removeDir($dir);
-                // Mensaje y redirecionamos
-                $this->msgSet('Bien 😀', "Se han eliminado {$success} archivos y directorios correctamente.");
-                $this->redirect($this->getOption('Site_url'));
-            } catch (Exception $e) {
-                // Mensaje y redirecionamos
-                $this->msgSet('Oh 🙄', "Error al eliminar el directorio: " . $e->getMessage());
-                $this->redirect($this->getOption('Site_url') . '?delete=dir&where=' . base64_encode($dir));
+            // si es un archivo
+            if($this->getPost('dir')){
+                try {
+                    $success = $this->removeDir($dir);
+                    // Mensaje y redirecionamos
+                    $this->msgSet('Bien 😀', "Se han eliminado {$success} archivos y directorios correctamente.");
+                    $this->redirect($this->getOption('Site_url'));
+                } catch (Exception $e) {
+                    // Mensaje y redirecionamos
+                    $this->msgSet('Oh 🙄', "Error al eliminar el directorio: " . $e->getMessage());
+                    $this->redirect($this->getOption('Site_url') . '?delete=dir&where=' . base64_encode($dir));
+                }
+            }
+
+            if($this->getPost('file')){
+                if ($this->removeFile($dir)) {
+                    $this->msgSet('Bien 😀', 'El archivo se ha borrado exitosamente.');
+                    $url = $this->getOption('Site_url') . '/?get=dir&name=' . base64_encode(dirname($dir));
+                    $this->redirect($url);
+                }
             }
         }
     }
@@ -2327,15 +2031,23 @@ trait FormsFunctions
      */
     public function uploadFiles(string $dir = "")
     {
+
         // Comprobamos si se ha enviado un archivo
         if (isset($_FILES['files'])) {
             $file = $_FILES['files'];
             $totalFiles = count($file['name']); // Obtenemos el número total de archivos a subir
             $uploadedFiles = 0; // Inicializamos el contador de archivos subidos a cero
+            $maxFileSize = 30 * 1024 * 1024; // Tamaño máximo permitido en bytes (30 MB)
             // Iteramos sobre cada archivo
             for ($i = 0; $i < $totalFiles; $i++) {
                 $filename = $file['name'][$i]; // Obtenemos el nombre del archivo
                 $tmpname = $file['tmp_name'][$i]; // Obtenemos la ruta temporal donde se ha guardado el archivo
+                $size = $file['size'][$i];
+                // Si algún archivo excede el tamaño máximo, muestra un mensaje de error y detiene la ejecución del script.
+                if($size > $maxFileSize){
+                    die("Error 🙄,El tamaño de los archivos subidos no debe exceder de 30 MB.");
+                    exit();
+                }
                 // Obtenemos la información del archivo
                 $info = pathinfo($filename, PATHINFO_EXTENSION);
                 // Verificamos que la extensión del archivo sea válida (es decir, es una imagen o un archivo editable)
@@ -2352,16 +2064,14 @@ trait FormsFunctions
                         $uploadedFiles++;
                     }
                 } else {
-                    $this->msgSet('Oh 🙄', "Hubo un problema al subir el archivo {$filename}");
+                    die("Oh 🙄, Hubo un problema al subir el archivo {$filename}");
                 }
             }
             // Redirigimos a la página de destino con un mensaje de éxito o fracaso
             if ($uploadedFiles == $totalFiles) {
-                $this->msgSet('Bien 😁', 'La subida de archivos ha tenido exito :)');
-                $this->redirect($url . '?get=dir&name=' . base64_encode($dir));
+                die("Bien 😁, La subida de archivos ha tenido exito");
             } else {
-                $this->msgSet('Oh 🙄', 'Hubo un problema al subir el archivo');
-                $this->redirect($url . '?get=dir&name=' . base64_encode($dir));
+                die("Oh 🙄, Hubo un problema al subir el archivo");
             }
         }
     }
@@ -2497,11 +2207,16 @@ class MediaManager
         'logo' => '',
         'exclude' => ['root', '.gitignore', '.git', 'node_modules', '.htaccess', 'temp', '_temp_files'],
         'imageSupport' => ["ico", "jpg", "jpeg", "png", "gif", "svg", "bmp", "webp"],
-        'videoSupport' => ["mp4", "webm", "ogg", "mov", "avi", "wmv", "flv", "m4v", "mkv", "mpeg", "mpg", "3gp"],
+        'videoSupport' => ["mp4", "webm", "ogg","mpeg", "mpg", "3gp"],
         'audioSupport' => ["wav", "mp3", "ogg", "m4a"],
         'editableFilesSupport' => ['env', 'less', 'scss', 'jsx', 'ts', 'tsx', 'json', 'sql', 'manifest', 'txt', 'md', 'html', 'htm', 'xml', 'css', 'js', 'php', 'c', 'cpp', 'h', 'hpp', 'py', 'rb', 'java', 'sh', 'pl'],
         'nonEditableFilesSupport' => ["ttf", "otf", "woff", "woff2", "docx", "xlsx", "pptx", "accdb", "pub", "vsd", "doc", "xls", "ppt", "mdb", 'mo', 'po', 'db', 'pdf', 'zip'],
     ];
+
+    private $__config = [];
+    private $__ip = "";
+    private $__client_hash = "";
+    private $__login_hash = "";
 
     /**
      * Construct
@@ -2512,7 +2227,7 @@ class MediaManager
     {
         $this->sessionStart();
         // Fusiona el array de configuraciones por defecto con el array de configuraciones que se pasa como argumento en el constructor
-        $this->config = array_merge(self::$defaultConfig, $config);
+        $this->__config = array_merge(self::$defaultConfig, $config);
         // Hash de login y cliente
         foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $key) {
             $ip = isset($_SERVER[$key]) && !empty($_SERVER[$key]) ? explode(',', $_SERVER[$key])[0] : '';
@@ -2522,9 +2237,9 @@ class MediaManager
 
         }
         // datos de seguridad
-        $this->ip = $ip;
-        $this->client_hash = md5($ip . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') . __FILE__ . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''));
-        $this->login_hash = md5($this->getOption('password') . $this->client_hash);
+        $this->__ip = $ip;
+        $this->__client_hash = md5($ip . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') . __FILE__ . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''));
+        $this->__login_hash = md5($this->getOption('password') . $this->__client_hash);
     }
 
     /**
@@ -2536,9 +2251,9 @@ class MediaManager
     public function getOption($key)
     {
         // Verifica si la clave $key está presente en el array de configuración $config
-        if (isset($this->config[$key])) {
+        if (isset($this->__config[$key])) {
             // Si la clave existe, retorna el valor correspondiente
-            return $this->config[$key];
+            return $this->__config[$key];
         } else {
             // Si la clave no existe, retorna null
             return null;
@@ -2690,8 +2405,10 @@ class MediaManager
 
 $MediaManager = new MediaManager([
     'Site_url' => 'http://localhost/root.php',
-    'password' => '$2y$10$n5xO5I4XTPt.WZaSGI0x5OEZQoDoBU2dDYrAq8yLXBsb512KfnP2G',// demo123
+    'password' => '$2y$10$XQ72KiABY0zRj7NUqvSDZ.MAPbF0PogBQzmkqYddfYVnoiHIIWUJO',
     'title' => 'Root App',
+    'theme' => 'sandstone', // 'cerulean','cosmo','cyborg','darkly','flatly','journal','litera','lumen','lux','materia','minty','morph','pulse','quartz','sandstone','simplex','sketchy','slate','solar','spacelab','superhero','united','vapor','yeti','zephyr',
+    'theme-code' => 'yeti',
     'logo' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAjpJREFUWEftlcsrRFEcx3/TlCahSFkgyqORKQszyiOFjTw2SikLOxsrZSNqUiYbZeUPsFBKzUZkg5RHcSzUlMmjCAslCjHJNPqd8buOa849584jG7/Vveeec76f8/3+TtdRGxyOwR+W4x9Ax4HxkZOkQpqZr1Gu04qAAAYu1pUb4oSlik4+Ly0AJD54uQrRqNPYXEaCkE5nFBbLu7UglA6YTz9d1AD++32ArFyYyvNwEf9TCOD9GaYKG2Hy7oCP6bpgG0Arg0wB0KlUEBhD2h1A0fOXB5U2/16ZU2DMUzWiVgQkjNl31eUZm68dP/Fn8xj2AoGkDYA3no0iiOWFZstVSgf6h3ZhpdoFbG8LvE1tPzbDMaxE4zjWexqBlABC3bO/BBhj8TGv9ycMY4B/NZ8wToCe1TGpC5YOEIB4ykPGYLTVATuv9dwV+taSfQRz2zHw+eJg9A2fUwOIPAK48qVWyyLgC77WJg2Ae4gu2OhBY6qVOE5SNmEiCHfp91UUocLX8WtJpRJPCkAmTqIiRMYAuAjmK5YrHxAu4wCWfZCVy/+KaY9A1owUhzl71dUTD6HVhLQg1OPnj+6SYgjf3AK8ffD3WLYTaopLDPt1sqc9bQFwJzomwF1VljCJ8NkVeDYCtm5rUgDcBRMEinPrMwngChwB2wxantDb3geRiXptF7QdQHEsHQCcpwuhBUDidgB0IZQAorjoq9kJtD5RqZywBJCJkxBByMRpnhWEFEAlLsahArCK488BPgGWqTzwXrlG8gAAAABJRU5ErkJgggAA',
     'exclude' => ['root.php', '.gitignore', '.git', 'node_modules', '.htaccess', 'temp', '_temp_files'],
 ]);
