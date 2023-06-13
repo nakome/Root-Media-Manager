@@ -22,3 +22,11 @@ $options = [
     'nonEditableFilesSupport' => ["ttf", "otf", "woff", "woff2", "docx", "xlsx", "pptx", "accdb", "pub", "vsd", "doc", "xls", "ppt", "mdb", 'mo', 'po', 'db', 'pdf', 'zip'],
 ];
 ```
+
+### Capturas de pantalla
+
+![](./screenshots/default.jpeg)
+![](./screenshots/default-2.jpeg)
+![](./screenshots/default-3.jpeg)
+![](./screenshots/edit-view.jpeg)
+![](./screenshots/edit-view-2.jpeg)
