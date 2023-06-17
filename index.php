@@ -7,7 +7,7 @@ declare (strict_types = 1);
  * |                    GESTOR DE ARCHIVOS   (v1.1)                    |
  * |                                                                   |
  * | Copyright Moncho Varela            www.monchovarela.es            |
- * | Created: Dec. 7, 2023              Last modified: junio. 14, 2023 |
+ * | Created: May. 7, 2023              Last modified: junio. 14, 2023 |
  * +-------------------------------------------------------------------+
  * | This program may be used and hosted free of charge by anyone for  |
  * | personal purpose as long as this copyright notice remains intact. |
@@ -1892,7 +1892,7 @@ trait HtmlView
         $html .= '</div>'; // Cerramos btn group
 
         // Opciones de borrar o comprimir
-        $html .= '<div class="dropdown float-end"><button class="btn btn-dark dropdown-toggle-no-arrow" type="button" id="dropdownOptions" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" data-bs-title="Opciones" title="Opciones"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownOptions"><li><h6 class="dropdown-header">Opciones</h6></li><li><input type="submit" onClick="return confirm(\'Estas seguro de comprimir los archivos marcados?\');" name="zipFiles" class="dropdown-item" value="Comprimir marcados" title="Comprimir marcados"/></li><li><input type="submit" onClick="return confirm(\'Estas seguro de borrar los archivos marcados?\');" name="deleteAll" class="dropdown-item text-danger" value="Borrar marcados" title="Borrar marcados"/></li></ul></div>';
+        $html .= '<div class="dropdown float-end"><button class="btn btn-dark dropdown-toggle-no-arrow" type="button" id="dropdownOptions" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" data-bs-title="Opciones" title="Opciones"><i class="bi bi-gear"></i></button><ul class="dropdown-menu" aria-labelledby="dropdownOptions"><li><h6 class="dropdown-header">Opciones</h6></li><li><a class="dropdown-item" href="#" id="checkAll">Selecionar todos</a></li><li><input type="submit" onclick="return confirm(\'Estas seguro de comprimir los archivos marcados?\');" name="zipFiles" class="dropdown-item" value="Comprimir marcados" title="Comprimir marcados"/></li><li><input type="submit" onclick="return confirm(\'Estas seguro de borrar los archivos marcados?\');" name="deleteAll" class="dropdown-item text-danger" value="Borrar marcados" title="Borrar marcados"/></li></ul></div>';
 
         // Agregar contenedor para mostrar los archivos/directorios
         $html .= '<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 gy-3 gx-2 my-1">';
@@ -1955,7 +1955,7 @@ trait HtmlView
         // Detalles del servidor
         $serverDetails = $this->getWebServerDetails();
         $html .= '<div class="server-details">' . $serverDetails . '</div>';
-        $js = "const tooltipTriggerList=document.querySelectorAll('[data-bs-toggle=\"tooltip\"]');const tooltipList=[...tooltipTriggerList].map(tooltipTriggerEl=>new bootstrap.Tooltip(tooltipTriggerEl));function copyToClipboard(txt){let input=document.createElement('input');input.value=txt;document.body.appendChild(input);input.select();let result=document.execCommand('copy');document.body.removeChild(input);if(result){message('Bien! 😀','Texto copiado al portapapeles')}else{message('Ups! 😯','Error al copiar al portapapeles')}}";
+        $js = "const tooltipTriggerList=document.querySelectorAll('[data-bs-toggle=tooltip]');const tooltipList=[...tooltipTriggerList].map(tooltipTriggerEl=>new bootstrap.Tooltip(tooltipTriggerEl));function copyToClipboard(txt){let input=document.createElement('input');input.value=txt;document.body.appendChild(input);input.select();let result=document.execCommand('copy');document.body.removeChild(input);if(result){message('Bien! 😀','Texto copiado al portapapeles')}else{message('Ups! 😯','Error al copiar al portapapeles')}}const checkAllElements=document.getElementById('checkAll');checkAllElements.addEventListener('click',evt=>{evt.preventDefault();checkAllElements.classList.toggle('active');const checkAll=document.querySelectorAll('input[type=checkbox]');if(checkAllElements.classList.contains('active')){Array.from(checkAll).map(item=>item.setAttribute('checked',true))}else{checkAllElements.classList.remove('active');Array.from(checkAll).map(item=>item.removeAttribute('checked'))}},false);";
         // Generamos la plantilla por defecto
         return $this->viewLayout($html, '', $js, $dir);
     }

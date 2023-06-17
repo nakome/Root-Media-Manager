@@ -9,7 +9,7 @@ Copia el archivo en tu hosting o en la Raspberry y agrega los datos en la config
 ```php
 // Opciones básicas
 $options = [
-    'Site_url' => 'http://localhost:8000',
+    'Site_url' => 'http://127.0.0.1:3000',
     'password' => '$2y$10$ErfmRft0n5cFAA.r3RLIgeRqtIo6ycU85JbtyqWFOMZ.ZVsFHjx2a', // insame69&;
     'title' => 'Gestor de archivos',
     'emojiFavicon' => '🐱‍👤',
